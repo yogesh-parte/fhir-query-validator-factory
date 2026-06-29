@@ -1,0 +1,23 @@
+[project]
+name = "fhir-query-validator-factory"
+version = "0.1.0"
+description = "Demonstration of Software Factory principles with agentic FHIR query validation"
+authors = [{ name = "Yogesh" }]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff",
+]
+observability = [
+    "langfuse>=2.0",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
