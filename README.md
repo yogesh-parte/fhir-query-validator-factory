@@ -34,6 +34,7 @@ jupyter notebook examples/notebooks/demo_loops.ipynb
 | [Traceability](docs/traceability.md)         | How to observe agent decisions               |
 | [Configuration](docs/configuration.md)       | How to configure servers and authentication  |
 | [Specifications](docs/spec/)                 | Detailed behavior specs for each agent       |
+| [Spec vs Code Gap Review](#spec-vs-code-gap-review) | Known gaps between specs and implementation |
 
 ---
 
@@ -139,9 +140,140 @@ tests/          → Unit, regression, and integration tests
 
 ---
 
+## Spec vs Code Gap Review
+
+*Review date: 2026-06-29. Compares `docs/spec/*.md` against `src/agentic_layer/` implementation.*
+
+### Verdict
+
+The implementation is a **demonstration scaffold** that wires the agent graph and feedback loops described in [`docs/loop-engineering.md`](docs/loop-engineering.md), but most production behaviors required by [`docs/spec/`](docs/spec/) are **simulated or stubbed**.
+
+Workflow orchestration (cache → interpret → validate → conditional execute → rule/learner/human) largely matches the spec flow; four public test servers are registered in `settings.py`; and `validate_only` / `validate_and_execute` gating works.
+
+**Issue counts:** 20 bugs, 11 suggestions, 3 nits (34 total).
+
+### Spec acceptance criteria status
+
+| Spec | Acceptance criteria (summary) | Implementation status |
+|------|------------------------------|------------------------|
+| [query-validation-spec](docs/spec/query-validation-spec.md) | Multi-server config, auth, full CapabilityStatement validation, cross-server patterns, auth errors | **Mostly open** — server keys exist; validation/auth are stubs |
+| [cache-agent-spec](docs/spec/cache-agent-spec.md) | Auth-aware fetch, hybrid invalidation, decision logging | **Partial** — TTL works; ETag/auth/304 are simulated or missing |
+| [query-execution-spec](docs/spec/query-execution-spec.md) | Real execution, auth headers, structured responses, timing | **Open** — simulated execution; no auth or timing |
+| [rule-and-learner-spec](docs/spec/rule-and-learner-spec.md) | Pattern detection, learner vs human escalation, CapabilityStatement-based guidance, audit | **Partial** — basic pattern count; human path never taken |
+| [human-intervention-spec](docs/spec/human-intervention-spec.md) | Triggers, pause/notify/review/resume, audit, severity | **Open** — stub only; not integrated into live path |
+
+### What aligns with spec
+
+- Agent graph wiring in `validation_workflow.py`
+- CapabilityInterpreter extracts resource types and search param names
+- CacheAgent TTL default (7 days) and `invalidate()`
+- Module-level singletons enabling cross-request pattern history in demos
+- Four default public servers (`hapi`, `firely`, `spark`, `wildfhir`)
+
+### Critical gaps
+
+| Area | Spec requires | Code does |
+|------|---------------|-----------|
+| **Validation** | Validate against interpreted CapabilityStatement | Hard-coded string checks (`Patient?gender`, `Observation?`) |
+| **HTTP I/O** | Real FHIR metadata + search requests | Static simulated responses |
+| **Auth** | Bearer/OAuth forwarded on requests | Env vars loaded but never used on HTTP |
+| **Cache** | Hybrid TTL + ETag/304, auth-scoped keys | TTL only; ETag stored but unused |
+| **Escalation** | Learner vs human decision paths | `RuleAgent` always returns `"learner"` — human gate is dead code |
+| **Output** | `{valid, server_used, errors, warnings, executed, results}` | Different shape; missing `server_used`, `errors`, `results` |
+
+### Priority fixes
+
+1. **Real CapabilityStatement-driven validation** — parse `query_url` against `interpreted_capability`
+2. **Real HTTP fetch/execute** — replace simulated `_fetch_from_server` and `QueryExecutionAgent`
+3. **Auth forwarding** — wire `auth_token` through workflow to cache and execution
+4. **Tiered escalation** — implement learner vs human rules; reconcile spec threshold conflicts
+5. **Spec output contract** — align `final_output` with documented JSON schema
+
+### Docs inconsistency to resolve first
+
+Before implementing `RuleAgent` tiers, reconcile pattern thresholds across specs:
+
+| Document | Threshold |
+|----------|-----------|
+| `rule-and-learner-spec.md` | 3+ invalid queries within 10 minutes |
+| `loop-engineering.md` | 3+ failures in 5 minutes |
+| `human-intervention-spec.md` | 5+ failures in 15 minutes |
+
+Code currently implements only the 5-minute window.
+
+### Open issues by spec
+
+#### query-validation-spec
+
+| Sev | File | Gap |
+|-----|------|-----|
+| bug | `query_validator.py:38` | Ignores `interpreted_capability`; uses hard-coded substring checks |
+| bug | `capability_interpreter.py:30` | Modifiers and comparators not parsed |
+| bug | `validation_workflow.py:18` | No `auth_token` in `ValidationState` |
+| bug | `validation_workflow.py:101` | `final_output` does not match spec JSON schema |
+| bug | `settings.py:74` | Unknown `server_key` silently falls back to default |
+| bug | `settings.py:44` | OAuth/Bearer config loaded but never used |
+| bug | `cache_agent.py:55` | No real HTTP fetch of CapabilityStatement |
+| suggestion | `query_validator.py:17` | Pattern history keyed by `user_id` only, not `user_id` + `server_key` |
+| nit | `validation_workflow.py:101` | `errors`/`warnings` not surfaced in `final_output` |
+
+#### cache-agent-spec
+
+| Sev | File | Gap |
+|-----|------|-----|
+| bug | `cache_agent.py:55` | No `Authorization` header on fetch |
+| bug | `cache_agent.py:19` | Cache key is `server.key` only; no auth context |
+| bug | `cache_agent.py:35` | No conditional requests (ETag/304); TTL only |
+| suggestion | `cache_agent.py:73` | `invalidate()` not wired to config or admin signal |
+| nit | `cache_agent.py:37` | Cache decision logging incomplete (no miss/304 events) |
+
+#### query-execution-spec
+
+| Sev | File | Gap |
+|-----|------|-----|
+| bug | `query_execution.py:27` | Execution fully simulated; no real FHIR HTTP |
+| bug | `query_execution.py:19` | `auth_token` accepted but never used |
+| suggestion | `validation_workflow.py:71` | Workflow does not pass `auth_token` to executor |
+| suggestion | `query_execution.py:24` | No execution timing or outcome metrics |
+| suggestion | `tests/` | No tests for `QueryExecutionAgent` or auth headers |
+
+#### rule-and-learner-spec
+
+| Sev | File | Gap |
+|-----|------|-----|
+| bug | `rule_agent.py:21` | Always returns `"learner"`; human path unreachable |
+| bug | `query_validator.py:67` | Threshold conflicts across specs; code uses 5 min only |
+| bug | `query_validator.py:52` | All failures recorded as same `error_type` |
+| suggestion | `search_learner_agent.py:17` | Generic guidance; does not use CapabilityStatement |
+| suggestion | `rule_agent.py:22` | No structured audit log with reasoning |
+| suggestion | `tests/` | No tests for RuleAgent, SearchLearner, or human escalation |
+
+#### human-intervention-spec
+
+| Sev | File | Gap |
+|-----|------|-----|
+| bug | `validation_workflow.py:86` | Human branch dead code; `RuleAgent` never returns `"human"` |
+| bug | `human_gate.py:15` | No pause/notify/review/resume workflow |
+| bug | `human_gate.py:15` | No persistent audit records |
+| suggestion | `human_gate.py:9` | No severity classification or differentiated handling |
+
+#### configuration and tests
+
+| Sev | File | Gap |
+|-----|------|-----|
+| bug | `settings.py:11` | No protected/custom server registration via `FHIR_USE_AUTH` |
+| suggestion | `test_full_workflow.py` | Integration test covers only one happy path |
+| suggestion | `test_cache_agent.py` | No expiry, invalidation, or auth-scoped key tests |
+| suggestion | `loop-engineering.md:48` | Doc threshold (5 min) conflicts with other specs |
+| nit | `loop-engineering.md:19` | Loop doc says ETag simulated; cache spec treats it as required |
+
+---
+
 ## Status
 
 This is a living demonstration project. It is intended as a **reference example** of how to apply Software Factory principles to modern agentic AI development.
+
+The [Spec vs Code Gap Review](#spec-vs-code-gap-review) above tracks known gaps between specifications and the current demo implementation.
 
 Feedback and contributions are welcome.
 
