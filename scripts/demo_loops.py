@@ -34,7 +34,7 @@ def run_scenario(name: str, query_url: str, user_id: str, mode: str = "validate_
     print(f"Valid                 : {result['final_output']['valid']}")
     print(f"Pattern Detected      : {result['final_output']['pattern_detected']}")
     print(f"Escalation            : {result['final_output']['escalation']}")
-    print(f"Execution Performed   : {result['final_output']['execution'].get('executed')}")
+    print(f"Execution Performed   : {result['final_output'].get('executed')}")
     print(f"Human Review Required : {result['final_output']['human_review_required']}")
 
     if result.get("learner_guidance"):

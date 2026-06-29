@@ -12,6 +12,12 @@ def test_basic_patient_gender_query_still_works():
     validator = QueryValidatorAgent()
     result = validator.validate(
         query_url="Patient?gender=male",
-        interpreted_capability={"supported_resources": {"Patient": {}}}
+        interpreted_capability={
+            "supported_resources": {
+                "Patient": {
+                    "search_params": [{"name": "gender", "type": "token", "modifiers": [], "comparators": []}],
+                }
+            }
+        },
     )
     assert result["valid"] is True

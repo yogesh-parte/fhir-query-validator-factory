@@ -1,110 +1,59 @@
 """
 validation_workflow.py
-Main ADK-style graph workflow demonstrating loop engineering.
+Google ADK graph workflow for FHIR query validation with loop engineering.
 """
 
-from typing import TypedDict, Optional, Literal, Any, Dict
-from ..agents import (
-    CacheAgent,
-    CapabilityInterpreterAgent,
-    QueryValidatorAgent,
-    QueryExecutionAgent,
-    RuleAgent,
-    SearchLearnerAgent,
-    HumanInterventionGate
-)
+from __future__ import annotations
+
+from typing import Any, Literal, Optional, TypedDict
+
+from google.adk import Workflow
+
+from ..state.workflow_state import ValidationWorkflowState
+from .nodes import finalize_output, initialize_workflow, run_validation_pipeline
+from .workflow_engine import execute_workflow
 
 
 class ValidationState(TypedDict, total=False):
+    """Legacy TypedDict kept for backward-compatible demo scripts and tests."""
+
     query_url: str
     server_key: Optional[str]
     user_id: Optional[str]
+    auth_token: Optional[str]
     mode: Literal["validate_only", "validate_and_execute"]
 
-    capability_statement: Dict[str, Any]
-    interpreted_capability: Dict[str, Any]
-    validation_result: Dict[str, Any]
-    execution_result: Dict[str, Any]
+    capability_statement: dict[str, Any]
+    interpreted_capability: dict[str, Any]
+    validation_result: dict[str, Any]
+    execution_result: dict[str, Any]
 
     pattern_detected: bool
-    escalation_decision: Optional[str]  # 'learner' | 'human' | 'none'
-    learner_guidance: Dict[str, Any]
-    human_review: Dict[str, Any]
+    escalation_decision: Optional[str]
+    learner_guidance: dict[str, Any]
+    human_review: dict[str, Any]
 
-    final_output: Dict[str, Any]
+    final_output: dict[str, Any]
 
 
-# Initialize agents (singletons for demo)
-cache_agent = CacheAgent()
-interpreter = CapabilityInterpreterAgent()
-validator = QueryValidatorAgent()
-executor = QueryExecutionAgent()
-rule_agent = RuleAgent()
-learner_agent = SearchLearnerAgent()
-human_gate = HumanInterventionGate()
+# ADK 2.0 graph workflow — runnable via `adk run` / `adk web` / agents-cli.
+root_agent = Workflow(
+    name="fhir_query_validator",
+    description=(
+        "Validates FHIR search queries against CapabilityStatement, executes valid "
+        "queries, detects error patterns, and escalates to learner or human agents."
+    ),
+    state_schema=ValidationWorkflowState,
+    edges=[
+        ("START", initialize_workflow, run_validation_pipeline, finalize_output),
+    ],
+)
 
 
 def run_validation_workflow(state: ValidationState) -> ValidationState:
     """
-    Main workflow demonstrating multiple feedback loops.
+    Synchronous workflow entry point for demos, scripts, and tests.
+    Delegates to the shared workflow engine used by ADK graph nodes.
     """
-
-    # === Step 1: Cache Loop ===
-    print("\n=== [LOOP] Cache Invalidation Loop ===")
-    state["capability_statement"] = cache_agent.get_capability_statement(state.get("server_key"))
-
-    # === Step 2: Interpretation ===
-    state["interpreted_capability"] = interpreter.interpret(state["capability_statement"])
-
-    # === Step 3: Validation + Pattern Detection ===
-    print("\n=== [LOOP] Validation + Pattern Detection ===")
-    state["validation_result"] = validator.validate(
-        query_url=state["query_url"],
-        interpreted_capability=state["interpreted_capability"],
-        user_id=state.get("user_id")
-    )
-    state["pattern_detected"] = state["validation_result"].get("pattern_detected", False)
-
-    # === Step 4: Execution Loop (only if valid) ===
-    if state["validation_result"].get("valid") and state.get("mode") == "validate_and_execute":
-        print("\n=== [LOOP] Validation → Execution Loop ===")
-        state["execution_result"] = executor.execute(
-            query_url=state["query_url"],
-            server_key=state.get("server_key")
-        )
-    else:
-        state["execution_result"] = {"executed": False}
-
-    # === Step 5: Rule Agent + Meta Feedback Loop ===
-    print("\n=== [LOOP] Pattern Detection → Learning / Human Escalation ===")
-    if state["pattern_detected"]:
-        state["escalation_decision"] = rule_agent.decide_escalation(
-            pattern_detected=True,
-            validation_result=state["validation_result"]
-        )
-
-        if state["escalation_decision"] == "learner":
-            state["learner_guidance"] = learner_agent.provide_guidance(
-                query_url=state["query_url"],
-                validation_result=state["validation_result"]
-            )
-        elif state["escalation_decision"] == "human":
-            state["human_review"] = human_gate.request_human_review({
-                "query_url": state["query_url"],
-                "user_id": state.get("user_id"),
-                "validation_result": state["validation_result"]
-            })
-    else:
-        state["escalation_decision"] = "none"
-
-    # Final output
-    state["final_output"] = {
-        "valid": state["validation_result"].get("valid"),
-        "pattern_detected": state["pattern_detected"],
-        "escalation": state.get("escalation_decision"),
-        "execution": state.get("execution_result"),
-        "guidance": state.get("learner_guidance"),
-        "human_review_required": state.get("human_review") is not None
-    }
-
-    return state
+    result = execute_workflow(dict(state))
+    return result.model_dump()  # type: ignore[return-value]

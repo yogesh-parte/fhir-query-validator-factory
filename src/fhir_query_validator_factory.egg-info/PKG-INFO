@@ -1,0 +1,301 @@
+Metadata-Version: 2.4
+Name: fhir-query-validator-factory
+Version: 0.1.0
+Summary: Demonstration of Software Factory principles with agentic FHIR query validation
+Author: Yogesh
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: httpx>=0.27
+Requires-Dist: authlib>=1.3
+Requires-Dist: google-adk>=2.0
+Requires-Dist: pydantic>=2.0
+Provides-Extra: adk-cli
+Requires-Dist: google-agents-cli>=0.6; extra == "adk-cli"
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
+Provides-Extra: observability
+Requires-Dist: langfuse>=2.0; extra == "observability"
+
+# fhir-query-validator-factory
+
+> **Demonstration repository** showcasing how to apply **Software Factory** principles when building agentic systems using Google ADK.
+
+**In a nutshell**: This project shows a disciplined, spec-driven way to build observable and governable agentic AI systems — with explicit feedback loops, human oversight, and strong traceability.
+
+---
+
+## Quick Start
+
+### Run the Demos
+
+```bash
+# See feedback loops in action
+python scripts/demo_loops.py
+
+# See structured agent traceability reports
+python scripts/demo_traceability.py
+```
+
+### Explore with Jupyter Notebook
+
+```bash
+jupyter notebook examples/notebooks/demo_loops.ipynb
+```
+
+### Key Documentation
+
+| Document                        | Purpose                                      |
+|--------------------------------|----------------------------------------------|
+| [Process Overview](docs/process-overview.md) | End-to-end methodology (with Mermaid diagram) |
+| [Architecture](docs/architecture.md)         | System design and specialist agents          |
+| [Loop Engineering](docs/loop-engineering.md) | Explanation of feedback loops                |
+| [Traceability](docs/traceability.md)         | How to observe agent decisions               |
+| [Configuration](docs/configuration.md)       | How to configure servers and authentication  |
+| [Specifications](docs/spec/)                 | Detailed behavior specs for each agent       |
+| [Spec vs Code Gap Review](#spec-vs-code-gap-review) | Known gaps between specs and implementation |
+
+---
+
+## What is This Project?
+
+This repository demonstrates a **modern Software Factory approach** for developing agentic AI systems. It evolves the ideas from the original [fhirqueryvalidator](https://github.com/yogesh-parte/fhirqueryvalidator) into a more intelligent, generalized, and observable system.
+
+Instead of building agents in an ad-hoc way, this project follows a structured process:
+- Clear upfront planning and specifications
+- Specialist agents with narrow responsibilities
+- Explicit feedback loops (including learning and human escalation)
+- Strong emphasis on traceability and governance
+
+The result is a working demonstration of a **generalized FHIR query validator** that can validate any parameter from a CapabilityStatement, execute queries, detect repeated user errors, and respond intelligently.
+
+---
+
+## Methodology / Process Overview
+
+```mermaid
+flowchart TD
+    subgraph Human_Planning["Human-Centric Planning Layer"]
+        P0[Phase 0: Ideation & Problem Definition]
+        P1[Phase 1: Requirements & Structured Planning]
+        P2[Phase 2: Architecture & Key Decisions]
+        P0 --> P1 --> P2
+    end
+
+    subgraph Spec_Driven["Spec-Driven Development"]
+        S1[Create Detailed Specifications] --> S2[Define Feedback Loops & Human Gates]
+    end
+
+    subgraph Implementation["Implementation (Google ADK + Codex)"]
+        I1[Phase 3: Scaffolding + Core Agents] --> I2[Phase 4: Loop Engineering]
+    end
+
+    subgraph Observability["Traceability & Observability"]
+        T1[Structured Logging] --> T2[Trace Reports] --> T3[Optional Langfuse]
+    end
+
+    subgraph Knowledge["Knowledge Packaging"]
+        K1[Generate OKF Knowledge Bundle]
+    end
+
+    P2 --> Spec_Driven
+    S2 --> Implementation
+    I2 --> Observability
+    T3 --> Knowledge
+
+    style Human_Planning fill:#e3f2fd,stroke:#1565c0
+    style Spec_Driven fill:#fff3e0,stroke:#ef6c00
+    style Implementation fill:#e8f5e9,stroke:#2e7d32
+    style Observability fill:#f3e5f5,stroke:#7b1fa2
+    style Knowledge fill:#e0f7fa,stroke:#00838f
+```
+
+**Core Principles**:
+- Planning is the highest-leverage activity
+- Spec-Driven Development before coding
+- Specialist Agents + Explicit Feedback Loops
+- Human Oversight at critical points
+- Traceability & Observability by design
+
+---
+
+## Project Goals
+
+- Demonstrate a **repeatable pattern** for building agentic systems
+- Show the value of **explicit loop engineering**
+- Maintain **human governance** in agentic workflows
+- Provide strong **traceability** and observability
+- Create reusable documentation and specifications
+
+---
+
+## Technology
+
+- **Primary**: Google Agent Development Kit (ADK) + `agents-cli`
+- **Language**: Python
+- **Optional Observability**: Langfuse
+
+---
+
+## Repository Knowledge
+
+This project follows a **documentation-first** approach. We recommend using the [OKF skill](https://github.com/YPCC/grok-custom-skills) to generate a structured knowledge bundle from this repository:
+
+```bash
+okf generate --repo . --output docs/knowledge-bundle.md
+```
+
+---
+
+## Project Structure
+
+```
+docs/           → Specifications, architecture, and guides
+planning/       → Detailed phase-by-phase planning artifacts
+src/agentic_layer/ → All agents and the main workflow
+scripts/        → Demo scripts (loops + traceability)
+tests/          → Unit, regression, and integration tests
+```
+
+---
+
+## Spec vs Code Gap Review
+
+*Review date: 2026-06-29. Compares `docs/spec/*.md` against `src/agentic_layer/` implementation.*
+
+### Verdict
+
+The implementation is a **demonstration scaffold** that wires the agent graph and feedback loops described in [`docs/loop-engineering.md`](docs/loop-engineering.md), but most production behaviors required by [`docs/spec/`](docs/spec/) are **simulated or stubbed**.
+
+Workflow orchestration (cache → interpret → validate → conditional execute → rule/learner/human) largely matches the spec flow; four public test servers are registered in `settings.py`; and `validate_only` / `validate_and_execute` gating works.
+
+**Issue counts:** 20 bugs, 11 suggestions, 3 nits (34 total).
+
+### Spec acceptance criteria status
+
+| Spec | Acceptance criteria (summary) | Implementation status |
+|------|------------------------------|------------------------|
+| [query-validation-spec](docs/spec/query-validation-spec.md) | Multi-server config, auth, full CapabilityStatement validation, cross-server patterns, auth errors | **Mostly open** — server keys exist; validation/auth are stubs |
+| [cache-agent-spec](docs/spec/cache-agent-spec.md) | Auth-aware fetch, hybrid invalidation, decision logging | **Partial** — TTL works; ETag/auth/304 are simulated or missing |
+| [query-execution-spec](docs/spec/query-execution-spec.md) | Real execution, auth headers, structured responses, timing | **Open** — simulated execution; no auth or timing |
+| [rule-and-learner-spec](docs/spec/rule-and-learner-spec.md) | Pattern detection, learner vs human escalation, CapabilityStatement-based guidance, audit | **Partial** — basic pattern count; human path never taken |
+| [human-intervention-spec](docs/spec/human-intervention-spec.md) | Triggers, pause/notify/review/resume, audit, severity | **Open** — stub only; not integrated into live path |
+
+### What aligns with spec
+
+- Agent graph wiring in `validation_workflow.py`
+- CapabilityInterpreter extracts resource types and search param names
+- CacheAgent TTL default (7 days) and `invalidate()`
+- Module-level singletons enabling cross-request pattern history in demos
+- Four default public servers (`hapi`, `firely`, `spark`, `wildfhir`)
+
+### Critical gaps
+
+| Area | Spec requires | Code does |
+|------|---------------|-----------|
+| **Validation** | Validate against interpreted CapabilityStatement | Hard-coded string checks (`Patient?gender`, `Observation?`) |
+| **HTTP I/O** | Real FHIR metadata + search requests | Static simulated responses |
+| **Auth** | Bearer/OAuth forwarded on requests | Env vars loaded but never used on HTTP |
+| **Cache** | Hybrid TTL + ETag/304, auth-scoped keys | TTL only; ETag stored but unused |
+| **Escalation** | Learner vs human decision paths | `RuleAgent` always returns `"learner"` — human gate is dead code |
+| **Output** | `{valid, server_used, errors, warnings, executed, results}` | Different shape; missing `server_used`, `errors`, `results` |
+
+### Priority fixes
+
+1. **Real CapabilityStatement-driven validation** — parse `query_url` against `interpreted_capability`
+2. **Real HTTP fetch/execute** — replace simulated `_fetch_from_server` and `QueryExecutionAgent`
+3. **Auth forwarding** — wire `auth_token` through workflow to cache and execution
+4. **Tiered escalation** — implement learner vs human rules; reconcile spec threshold conflicts
+5. **Spec output contract** — align `final_output` with documented JSON schema
+
+### Docs inconsistency to resolve first
+
+Before implementing `RuleAgent` tiers, reconcile pattern thresholds across specs:
+
+| Document | Threshold |
+|----------|-----------|
+| `rule-and-learner-spec.md` | 3+ invalid queries within 10 minutes |
+| `loop-engineering.md` | 3+ failures in 5 minutes |
+| `human-intervention-spec.md` | 5+ failures in 15 minutes |
+
+Code currently implements only the 5-minute window.
+
+### Open issues by spec
+
+#### query-validation-spec
+
+| Sev | File | Gap |
+|-----|------|-----|
+| bug | `query_validator.py:38` | Ignores `interpreted_capability`; uses hard-coded substring checks |
+| bug | `capability_interpreter.py:30` | Modifiers and comparators not parsed |
+| bug | `validation_workflow.py:18` | No `auth_token` in `ValidationState` |
+| bug | `validation_workflow.py:101` | `final_output` does not match spec JSON schema |
+| bug | `settings.py:74` | Unknown `server_key` silently falls back to default |
+| bug | `settings.py:44` | OAuth/Bearer config loaded but never used |
+| bug | `cache_agent.py:55` | No real HTTP fetch of CapabilityStatement |
+| suggestion | `query_validator.py:17` | Pattern history keyed by `user_id` only, not `user_id` + `server_key` |
+| nit | `validation_workflow.py:101` | `errors`/`warnings` not surfaced in `final_output` |
+
+#### cache-agent-spec
+
+| Sev | File | Gap |
+|-----|------|-----|
+| bug | `cache_agent.py:55` | No `Authorization` header on fetch |
+| bug | `cache_agent.py:19` | Cache key is `server.key` only; no auth context |
+| bug | `cache_agent.py:35` | No conditional requests (ETag/304); TTL only |
+| suggestion | `cache_agent.py:73` | `invalidate()` not wired to config or admin signal |
+| nit | `cache_agent.py:37` | Cache decision logging incomplete (no miss/304 events) |
+
+#### query-execution-spec
+
+| Sev | File | Gap |
+|-----|------|-----|
+| bug | `query_execution.py:27` | Execution fully simulated; no real FHIR HTTP |
+| bug | `query_execution.py:19` | `auth_token` accepted but never used |
+| suggestion | `validation_workflow.py:71` | Workflow does not pass `auth_token` to executor |
+| suggestion | `query_execution.py:24` | No execution timing or outcome metrics |
+| suggestion | `tests/` | No tests for `QueryExecutionAgent` or auth headers |
+
+#### rule-and-learner-spec
+
+| Sev | File | Gap |
+|-----|------|-----|
+| bug | `rule_agent.py:21` | Always returns `"learner"`; human path unreachable |
+| bug | `query_validator.py:67` | Threshold conflicts across specs; code uses 5 min only |
+| bug | `query_validator.py:52` | All failures recorded as same `error_type` |
+| suggestion | `search_learner_agent.py:17` | Generic guidance; does not use CapabilityStatement |
+| suggestion | `rule_agent.py:22` | No structured audit log with reasoning |
+| suggestion | `tests/` | No tests for RuleAgent, SearchLearner, or human escalation |
+
+#### human-intervention-spec
+
+| Sev | File | Gap |
+|-----|------|-----|
+| bug | `validation_workflow.py:86` | Human branch dead code; `RuleAgent` never returns `"human"` |
+| bug | `human_gate.py:15` | No pause/notify/review/resume workflow |
+| bug | `human_gate.py:15` | No persistent audit records |
+| suggestion | `human_gate.py:9` | No severity classification or differentiated handling |
+
+#### configuration and tests
+
+| Sev | File | Gap |
+|-----|------|-----|
+| bug | `settings.py:11` | No protected/custom server registration via `FHIR_USE_AUTH` |
+| suggestion | `test_full_workflow.py` | Integration test covers only one happy path |
+| suggestion | `test_cache_agent.py` | No expiry, invalidation, or auth-scoped key tests |
+| suggestion | `loop-engineering.md:48` | Doc threshold (5 min) conflicts with other specs |
+| nit | `loop-engineering.md:19` | Loop doc says ETag simulated; cache spec treats it as required |
+
+---
+
+## Status
+
+This is a living demonstration project. It is intended as a **reference example** of how to apply Software Factory principles to modern agentic AI development.
+
+The [Spec vs Code Gap Review](#spec-vs-code-gap-review) above tracks known gaps between specifications and the current demo implementation.
+
+Feedback and contributions are welcome.
+
+---
+
+*Built with strong emphasis on planning, specifications, feedback loops, and observability.*

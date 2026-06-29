@@ -34,7 +34,8 @@ def format_trace(state: dict) -> str:
     lines.append(f" [VALIDATION] Errors                : {final.get('errors', [])}")
     lines.append(f" [PATTERN]    Detected              : {final.get('pattern_detected')}")
     lines.append(f" [ESCALATION] Decision              : {final.get('escalation')}")
-    lines.append(f" [EXECUTION]  Performed             : {final.get('execution', {}).get('executed')}")
+    lines.append(f" [EXECUTION]  Performed             : {final.get('executed')}")
+    lines.append(f" [EXECUTION]  Server Used           : {final.get('server_used')}")
     lines.append(f" [HUMAN]      Review Required       : {final.get('human_review_required')}")
 
     if final.get("guidance"):

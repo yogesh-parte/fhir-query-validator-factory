@@ -142,130 +142,130 @@ tests/          → Unit, regression, and integration tests
 
 ## Spec vs Code Gap Review
 
-*Review date: 2026-06-29. Compares `docs/spec/*.md` against `src/agentic_layer/` implementation.*
+*Review date: 2026-06-30. Compares `docs/spec/*.md` against `src/agentic_layer/` implementation.*
 
 ### Verdict
 
-The implementation is a **demonstration scaffold** that wires the agent graph and feedback loops described in [`docs/loop-engineering.md`](docs/loop-engineering.md), but most production behaviors required by [`docs/spec/`](docs/spec/) are **simulated or stubbed**.
+The implementation now **meets the core acceptance criteria** across all five agent specs. The workflow is orchestrated as a **Google ADK 2.0 graph** (`root_agent` in `fhir_validator_agent/agent.py`) with a shared engine in `workflow_engine.py`, while `run_validation_workflow()` remains available for demos and tests.
 
-Workflow orchestration (cache → interpret → validate → conditional execute → rule/learner/human) largely matches the spec flow; four public test servers are registered in `settings.py`; and `validate_only` / `validate_and_execute` gating works.
+Real HTTP I/O, auth forwarding, CapabilityStatement-driven validation, tiered escalation, and the spec output contract are implemented. **38 tests** cover unit, integration, and regression paths.
 
-**Issue counts:** 20 bugs, 11 suggestions, 3 nits (34 total).
+**Remaining gaps:** 0 critical bugs; a small number of production-hardening and documentation items (see [Remaining open items](#remaining-open-items)).
 
 ### Spec acceptance criteria status
 
 | Spec | Acceptance criteria (summary) | Implementation status |
 |------|------------------------------|------------------------|
-| [query-validation-spec](docs/spec/query-validation-spec.md) | Multi-server config, auth, full CapabilityStatement validation, cross-server patterns, auth errors | **Mostly open** — server keys exist; validation/auth are stubs |
-| [cache-agent-spec](docs/spec/cache-agent-spec.md) | Auth-aware fetch, hybrid invalidation, decision logging | **Partial** — TTL works; ETag/auth/304 are simulated or missing |
-| [query-execution-spec](docs/spec/query-execution-spec.md) | Real execution, auth headers, structured responses, timing | **Open** — simulated execution; no auth or timing |
-| [rule-and-learner-spec](docs/spec/rule-and-learner-spec.md) | Pattern detection, learner vs human escalation, CapabilityStatement-based guidance, audit | **Partial** — basic pattern count; human path never taken |
-| [human-intervention-spec](docs/spec/human-intervention-spec.md) | Triggers, pause/notify/review/resume, audit, severity | **Open** — stub only; not integrated into live path |
+| [query-validation-spec](docs/spec/query-validation-spec.md) | Multi-server config, auth, full CapabilityStatement validation, cross-server patterns, auth errors | **Closed** — dynamic validation via `query_parser` + `interpreted_capability`; auth errors; unknown `server_key` raises |
+| [cache-agent-spec](docs/spec/cache-agent-spec.md) | Auth-aware fetch, hybrid invalidation, decision logging | **Closed** — Bearer/OAuth headers, auth-scoped keys, TTL + ETag/304, miss/hit/refresh logging |
+| [query-execution-spec](docs/spec/query-execution-spec.md) | Real execution, auth headers, structured responses, timing | **Closed** — `httpx` execution with auth, structured errors, `elapsed_ms` |
+| [rule-and-learner-spec](docs/spec/rule-and-learner-spec.md) | Pattern detection, learner vs human escalation, CapabilityStatement-based guidance, audit | **Closed** — tiered thresholds, audit log, capability-aware learner guidance |
+| [human-intervention-spec](docs/spec/human-intervention-spec.md) | Triggers, pause/notify/review/resume, audit, severity | **Closed** — pause gate, review/resume API, severity classification, audit records |
 
-### What aligns with spec
+### What is implemented
 
-- Agent graph wiring in `validation_workflow.py`
-- CapabilityInterpreter extracts resource types and search param names
-- CacheAgent TTL default (7 days) and `invalidate()`
-- Module-level singletons enabling cross-request pattern history in demos
-- Four default public servers (`hapi`, `firely`, `spark`, `wildfhir`)
+- **ADK graph workflow** — `Workflow` with `@node` functions: initialize → pipeline → finalize (`validation_workflow.py`)
+- **ADK / agents-cli entry point** — `fhir_validator_agent/agent.py` (`adk run`, `adk web`)
+- **CapabilityStatement validation** — resource types, search params, modifiers, comparators, chained params
+- **Auth** — Bearer + OAuth2 client credentials (`authlib`); headers on cache and execution; protected server via `FHIR_USE_AUTH`
+- **Cache** — hybrid TTL + conditional ETag/304; auth-scoped keys; admin invalidation via `FHIR_CACHE_INVALIDATE` / `FHIR_CACHE_INVALIDATE_KEYS`
+- **Escalation** — learner at 3+ failures / 10 min; human at 5+ failures / 15 min or high-severity; structured audit log
+- **Human gate** — pause, notify (demo channel), review decision, resume; severity levels
+- **Output contract** — `{valid, server_used, errors, warnings, executed, results}` in `final_output`
+- **Tests** — auth, cache, execution, validation, rule/learner, human gate, ADK workflow, integration paths
 
-### Critical gaps
+### Resolved critical gaps (2026-06-30)
 
-| Area | Spec requires | Code does |
-|------|---------------|-----------|
-| **Validation** | Validate against interpreted CapabilityStatement | Hard-coded string checks (`Patient?gender`, `Observation?`) |
-| **HTTP I/O** | Real FHIR metadata + search requests | Static simulated responses |
-| **Auth** | Bearer/OAuth forwarded on requests | Env vars loaded but never used on HTTP |
-| **Cache** | Hybrid TTL + ETag/304, auth-scoped keys | TTL only; ETag stored but unused |
-| **Escalation** | Learner vs human decision paths | `RuleAgent` always returns `"learner"` — human gate is dead code |
-| **Output** | `{valid, server_used, errors, warnings, executed, results}` | Different shape; missing `server_used`, `errors`, `results` |
+| Area | Was | Now |
+|------|-----|-----|
+| **Validation** | Hard-coded substring checks | Parses `query_url` against `interpreted_capability` |
+| **HTTP I/O** | Simulated responses | Real `httpx` metadata + search requests |
+| **Auth** | Env vars unused | Bearer/OAuth via `auth/provider.py`, forwarded on all HTTP |
+| **Cache** | TTL only | TTL + ETag/304 + auth-scoped keys |
+| **Escalation** | Always `"learner"` | Learner and human paths with audit reasoning |
+| **Output** | Non-spec shape | Matches query-validation-spec JSON schema |
+| **Orchestration** | ADK-style stub | Google ADK 2.0 `Workflow` graph |
 
-### Priority fixes
+### Threshold reconciliation (code)
 
-1. **Real CapabilityStatement-driven validation** — parse `query_url` against `interpreted_capability`
-2. **Real HTTP fetch/execute** — replace simulated `_fetch_from_server` and `QueryExecutionAgent`
-3. **Auth forwarding** — wire `auth_token` through workflow to cache and execution
-4. **Tiered escalation** — implement learner vs human rules; reconcile spec threshold conflicts
-5. **Spec output contract** — align `final_output` with documented JSON schema
+Code implements reconciled thresholds from the specs (README priority fix #4):
 
-### Docs inconsistency to resolve first
+| Path | Threshold | Source spec |
+|------|-----------|-------------|
+| Learner escalation | 3+ invalid queries within **10 minutes** | `rule-and-learner-spec.md` |
+| Human escalation | 5+ invalid queries within **15 minutes** (or high-severity) | `human-intervention-spec.md` |
 
-Before implementing `RuleAgent` tiers, reconcile pattern thresholds across specs:
+Pattern history is keyed by **`user_id` + `server_key`**.
 
-| Document | Threshold |
-|----------|-----------|
-| `rule-and-learner-spec.md` | 3+ invalid queries within 10 minutes |
-| `loop-engineering.md` | 3+ failures in 5 minutes |
-| `human-intervention-spec.md` | 5+ failures in 15 minutes |
+### Remaining open items
 
-Code currently implements only the 5-minute window.
+These are **non-blocking** for the demo; they are production or documentation follow-ups:
 
-### Open issues by spec
+| Sev | Area | Item |
+|-----|------|------|
+| docs | `loop-engineering.md` | Still references 5-minute threshold; should be updated to match code (10 min / 15 min) |
+| suggestion | Human gate | Notification is stdout-based; production needs email/ticket/dashboard integration |
+| suggestion | OAuth | Client credentials supported; authorization-code / PKCE / token rotation not implemented |
+| suggestion | Cache | In-memory only; Redis or distributed cache not wired |
+| suggestion | Learner | Per-user guidance only; global rule updates from learner not implemented (spec open question) |
+| suggestion | Deployment | ADK graph is runnable locally; Agent Engine / Cloud Run deployment is documented but not automated in-repo |
 
-#### query-validation-spec
+### Resolved issues by spec (formerly open)
 
-| Sev | File | Gap |
-|-----|------|-----|
-| bug | `query_validator.py:38` | Ignores `interpreted_capability`; uses hard-coded substring checks |
-| bug | `capability_interpreter.py:30` | Modifiers and comparators not parsed |
-| bug | `validation_workflow.py:18` | No `auth_token` in `ValidationState` |
-| bug | `validation_workflow.py:101` | `final_output` does not match spec JSON schema |
-| bug | `settings.py:74` | Unknown `server_key` silently falls back to default |
-| bug | `settings.py:44` | OAuth/Bearer config loaded but never used |
-| bug | `cache_agent.py:55` | No real HTTP fetch of CapabilityStatement |
-| suggestion | `query_validator.py:17` | Pattern history keyed by `user_id` only, not `user_id` + `server_key` |
-| nit | `validation_workflow.py:101` | `errors`/`warnings` not surfaced in `final_output` |
+<details>
+<summary>query-validation-spec — all former bugs closed</summary>
 
-#### cache-agent-spec
+- CapabilityStatement-driven validation in `query_validator.py`
+- Modifiers/comparators in `capability_interpreter.py`
+- `auth_token` in workflow state; spec `final_output` schema
+- Unknown `server_key` raises `UnknownServerKeyError`
+- OAuth/Bearer used via `auth/provider.py` and `get_auth_headers()`
+- Real HTTP CapabilityStatement fetch in `cache_agent.py`
+- Pattern history keyed by `user_id` + `server_key`
+</details>
 
-| Sev | File | Gap |
-|-----|------|-----|
-| bug | `cache_agent.py:55` | No `Authorization` header on fetch |
-| bug | `cache_agent.py:19` | Cache key is `server.key` only; no auth context |
-| bug | `cache_agent.py:35` | No conditional requests (ETag/304); TTL only |
-| suggestion | `cache_agent.py:73` | `invalidate()` not wired to config or admin signal |
-| nit | `cache_agent.py:37` | Cache decision logging incomplete (no miss/304 events) |
+<details>
+<summary>cache-agent-spec — all former bugs closed</summary>
 
-#### query-execution-spec
+- `Authorization` header on fetch; auth-scoped cache keys
+- Conditional ETag/304 requests within TTL
+- `invalidate()` honors `FHIR_CACHE_INVALIDATE` env signals
+- Cache decision logging (miss, hit, 304, refresh, expire)
+</details>
 
-| Sev | File | Gap |
-|-----|------|-----|
-| bug | `query_execution.py:27` | Execution fully simulated; no real FHIR HTTP |
-| bug | `query_execution.py:19` | `auth_token` accepted but never used |
-| suggestion | `validation_workflow.py:71` | Workflow does not pass `auth_token` to executor |
-| suggestion | `query_execution.py:24` | No execution timing or outcome metrics |
-| suggestion | `tests/` | No tests for `QueryExecutionAgent` or auth headers |
+<details>
+<summary>query-execution-spec — all former bugs closed</summary>
 
-#### rule-and-learner-spec
+- Real FHIR HTTP execution; auth header forwarding
+- `auth_token` passed through workflow; `elapsed_ms` timing
+- Tests in `test_query_execution.py`
+</details>
 
-| Sev | File | Gap |
-|-----|------|-----|
-| bug | `rule_agent.py:21` | Always returns `"learner"`; human path unreachable |
-| bug | `query_validator.py:67` | Threshold conflicts across specs; code uses 5 min only |
-| bug | `query_validator.py:52` | All failures recorded as same `error_type` |
-| suggestion | `search_learner_agent.py:17` | Generic guidance; does not use CapabilityStatement |
-| suggestion | `rule_agent.py:22` | No structured audit log with reasoning |
-| suggestion | `tests/` | No tests for RuleAgent, SearchLearner, or human escalation |
+<details>
+<summary>rule-and-learner-spec — all former bugs closed</summary>
 
-#### human-intervention-spec
+- Tiered learner vs human escalation in `rule_agent.py`
+- Reconciled 10 min / 15 min thresholds; typed `error_type` tracking
+- CapabilityStatement-based guidance in `search_learner_agent.py`
+- Structured audit log with reasoning
+- Tests in `test_rule_agent.py`, `test_search_learner.py`
+</details>
 
-| Sev | File | Gap |
-|-----|------|-----|
-| bug | `validation_workflow.py:86` | Human branch dead code; `RuleAgent` never returns `"human"` |
-| bug | `human_gate.py:15` | No pause/notify/review/resume workflow |
-| bug | `human_gate.py:15` | No persistent audit records |
-| suggestion | `human_gate.py:9` | No severity classification or differentiated handling |
+<details>
+<summary>human-intervention-spec — all former bugs closed</summary>
 
-#### configuration and tests
+- Human branch live in workflow; pause/notify/review/resume in `human_gate.py`
+- Persistent audit records; severity classification
+- Tests in `test_human_gate.py`; integration human-escalation path
+</details>
 
-| Sev | File | Gap |
-|-----|------|-----|
-| bug | `settings.py:11` | No protected/custom server registration via `FHIR_USE_AUTH` |
-| suggestion | `test_full_workflow.py` | Integration test covers only one happy path |
-| suggestion | `test_cache_agent.py` | No expiry, invalidation, or auth-scoped key tests |
-| suggestion | `loop-engineering.md:48` | Doc threshold (5 min) conflicts with other specs |
-| nit | `loop-engineering.md:19` | Loop doc says ETag simulated; cache spec treats it as required |
+<details>
+<summary>configuration and tests — former bugs closed</summary>
+
+- Protected server registration via `FHIR_USE_AUTH` + `FHIR_SERVER_BASE`
+- Integration tests: valid query, human escalation, unknown server key
+- Cache tests: expiry, auth-scoped keys, 304, invalidation
+</details>
 
 ---
 
@@ -273,7 +273,7 @@ Code currently implements only the 5-minute window.
 
 This is a living demonstration project. It is intended as a **reference example** of how to apply Software Factory principles to modern agentic AI development.
 
-The [Spec vs Code Gap Review](#spec-vs-code-gap-review) above tracks known gaps between specifications and the current demo implementation.
+The [Spec vs Code Gap Review](#spec-vs-code-gap-review) above tracks alignment between specifications and the current implementation. Core spec acceptance criteria are **closed** as of 2026-06-30; remaining items are production-hardening and doc updates.
 
 Feedback and contributions are welcome.
 
