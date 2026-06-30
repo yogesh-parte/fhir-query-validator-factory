@@ -1,0 +1,24 @@
+# Environment files with secrets — never commit API keys or tokens
+.env
+.env.local
+.env.*.local
+env.mockhealth
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store

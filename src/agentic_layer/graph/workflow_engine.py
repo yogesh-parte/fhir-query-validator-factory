@@ -17,7 +17,7 @@ from ..agents import (
     RuleAgent,
     SearchLearnerAgent,
 )
-from ..config.settings import get_auth_headers, get_server_config
+from ..config.settings import DEFAULT_SERVERS, get_auth_headers, get_server_config
 from ..exceptions import AuthenticationRequiredError, CapabilityFetchError, UnknownServerKeyError
 from ..state.workflow_state import ValidationWorkflowState
 from ..utils.audit_log import AuditLog
@@ -86,8 +86,15 @@ def execute_workflow(initial: dict[str, Any]) -> ValidationWorkflowState:
 
     auth_headers = get_auth_headers(server, auth_token_override=state.auth_token)
     if server.requires_auth and not auth_headers:
+        env_hint = DEFAULT_SERVERS.get(server.key, {}).get("auth_token_env")
+        hint = (
+            f" Set {env_hint} in .env.local (git-ignored) or pass auth_token at runtime."
+            if env_hint
+            else " Provide credentials via .env.local or auth_token at runtime."
+        )
         message = (
             f"Authentication required for server '{server.key}' but no credentials were provided."
+            + hint
         )
         state.workflow_error = message
         state.validation_result = {

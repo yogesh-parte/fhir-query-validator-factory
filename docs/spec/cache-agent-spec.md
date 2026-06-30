@@ -28,6 +28,7 @@ The `CacheAgent` is responsible for efficiently managing `CapabilityStatement` r
 
 - Public servers: No auth headers sent
 - Authenticated servers: Accept and forward `Authorization` header (Bearer token) or handle OAuth token refresh if configured
+- Per-server API keys (e.g. `MOCK_HEALTH_API_KEY` for `mockhealth`) are resolved at request time from `.env.local`
 - Cache entries should be keyed including auth context when relevant (to avoid leaking data across users)
 
 ## 5. Invalidation Strategy (Hybrid)

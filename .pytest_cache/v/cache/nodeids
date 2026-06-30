@@ -36,6 +36,9 @@
   "tests/unit/test_rule_agent.py::test_rule_agent_escalates_to_human_on_threshold",
   "tests/unit/test_rule_agent.py::test_rule_agent_escalates_to_learner",
   "tests/unit/test_search_learner.py::test_search_learner_uses_capability_statement",
+  "tests/unit/test_settings_auth.py::test_mockhealth_auth_headers_use_server_key",
+  "tests/unit/test_settings_auth.py::test_mockhealth_server_loads_api_key_from_env",
+  "tests/unit/test_settings_auth.py::test_mockhealth_server_requires_auth",
   "tests/unit/test_settings_auth.py::test_protected_server_registered_when_auth_enabled",
   "tests/unit/test_settings_auth.py::test_public_server_does_not_require_auth",
   "tests/unit/test_settings_auth.py::test_unknown_server_key_raises"

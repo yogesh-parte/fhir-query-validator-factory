@@ -10,6 +10,26 @@ from typing import Optional, Dict
 from ..auth.provider import AuthProvider, build_auth_provider, resolve_auth_headers
 from ..exceptions import UnknownServerKeyError
 
+
+def _load_env_files() -> None:
+    """
+    Load secrets from local env files without committing them to git.
+
+    Priority (later files do not override earlier ones):
+      1. .env.local  — developer secrets (git-ignored)
+      2. .env        — optional shared non-secret defaults (git-ignored)
+    """
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        return
+
+    load_dotenv(".env.local", override=False)
+    load_dotenv(".env", override=False)
+
+
+_load_env_files()
+
 # Default public test servers (from original repo + configuration.md)
 DEFAULT_SERVERS: Dict[str, dict] = {
     "hapi": {
@@ -31,6 +51,14 @@ DEFAULT_SERVERS: Dict[str, dict] = {
         "name": "WildFHIR",
         "base_url": "https://wildfhir4.wildfhir.org/r4",
         "requires_auth": False,
+    },
+    "mockhealth": {
+        "name": "mock.health",
+        "base_url": "https://api.mock.health/fhir",
+        "requires_auth": True,
+        # Per-server secret — set in .env.local, never commit to git.
+        # Obtain a key at https://mock.health/docs
+        "auth_token_env": "MOCK_HEALTH_API_KEY",
     },
 }
 
@@ -60,6 +88,16 @@ def get_settings() -> dict:
         "oauth_token_url": os.getenv("OAUTH_TOKEN_URL"),
         "oauth_scope": os.getenv("OAUTH_SCOPE"),
     }
+
+
+def _resolve_server_auth_token(server_info: dict, settings: dict) -> Optional[str]:
+    """Resolve a server-specific API key/token from its dedicated env var."""
+    env_var = server_info.get("auth_token_env")
+    if env_var:
+        return os.getenv(env_var)
+    if server_info.get("requires_auth"):
+        return settings.get("auth_token")
+    return None
 
 
 def _ensure_protected_server(settings: dict) -> None:
@@ -95,11 +133,20 @@ def get_auth_headers(
     auth_token_override: Optional[str] = None,
 ) -> dict[str, str]:
     """Resolve Authorization headers for a server request."""
+    if auth_token_override:
+        return {"Authorization": f"Bearer {auth_token_override}"}
+
+    if not server.requires_auth:
+        return {}
+
+    if server.auth_token:
+        return {"Authorization": f"Bearer {server.auth_token}"}
+
     settings = get_settings()
     return resolve_auth_headers(
         requires_auth=server.requires_auth,
         settings=settings,
-        auth_token_override=auth_token_override,
+        auth_token_override=None,
         provider=get_auth_provider(),
     )
 
@@ -132,10 +179,12 @@ def get_server_config(server_key: Optional[str] = None) -> ServerConfig:
     requires_auth = server_info.get("requires_auth", False) or (
         settings.get("use_auth", False) and key == "protected"
     )
+    auth_token = _resolve_server_auth_token(server_info, settings) if requires_auth else None
+
     return ServerConfig(
         key=key,
         name=server_info["name"],
         base_url=server_info["base_url"],
         requires_auth=requires_auth,
-        auth_token=settings.get("auth_token") if requires_auth else None,
+        auth_token=auth_token,
     )
