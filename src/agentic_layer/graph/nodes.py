@@ -13,7 +13,8 @@ from .workflow_engine import execute_workflow
 
 
 def _load_state(ctx: Context) -> ValidationWorkflowState:
-    return ValidationWorkflowState.model_validate(dict(ctx.state))
+    raw = ctx.state.to_dict() if hasattr(ctx.state, "to_dict") else dict(ctx.state)
+    return ValidationWorkflowState.model_validate(raw)
 
 
 def _save_state(ctx: Context, state: ValidationWorkflowState) -> None:

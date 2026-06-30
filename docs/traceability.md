@@ -23,10 +23,12 @@ The system uses clear `print` statements throughout the workflow and agents to s
 - Pattern detection
 - Escalation decisions (Learner vs Human)
 
-Run the traceability demo to see this in action:
+Run the traceability demos to see this in action:
 
 ```bash
-python scripts/demo_traceability.py
+python3 scripts/demo_traceability.py
+python3 scripts/demo_agent_traceability.py
+python3 scripts/demo_agent_traceability.py --server mockhealth --export traces.json
 ```
 
 ### 2. Trace Report
@@ -38,6 +40,8 @@ The `demo_traceability.py` script generates a clean, human-readable report after
 - Escalation decision
 - Learner guidance (if triggered)
 - Human review requirement
+
+`demo_agent_traceability.py` extends this with a **per-agent pipeline trace** (CacheAgent through HumanInterventionGate), **audit trail** entries from `RuleAgent` and `HumanInterventionGate`, and a **human pause → review → resume** scenario. Use `--export` to write a JSON trace bundle for presentations.
 
 ### 3. Optional: Langfuse Integration
 

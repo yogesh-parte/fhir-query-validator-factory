@@ -53,44 +53,82 @@ cp .env.example .env.local
 
 ## Quick Start
 
-### Run the Demos
+### Demo scripts
+
+All demos call `run_validation_workflow()` and make **live HTTP requests** to FHIR servers. Loop and trace output appears in the terminal.
+
+| Script | Purpose | Server(s) | Auth required |
+|--------|---------|-----------|---------------|
+| [`scripts/demo_loops.py`](scripts/demo_loops.py) | Feedback loops — valid query + learner escalation | `hapi` | No |
+| [`scripts/demo_traceability.py`](scripts/demo_traceability.py) | Structured trace reports (validation, escalation, execution) | `hapi` | No |
+| [`scripts/demo_agent_traceability.py`](scripts/demo_agent_traceability.py) | Per-agent pipeline trace, audit trail, human pause → review → resume | `hapi`, `firely`, `mockhealth` | Only for `mockhealth` |
+| [`scripts/demo_loops_mockhealth.py`](scripts/demo_loops_mockhealth.py) | Same loops as `demo_loops.py` on the mock.health sandbox | `mockhealth` | Yes (`MOCK_HEALTH_API_KEY`) |
+| [`scripts/demo_adk_cli.py`](scripts/demo_adk_cli.py) | **Google ADK CLI** — `adk run` scenarios, graph node events, JSONL | `hapi` | No |
+| [`scripts/demo_adk_web.py`](scripts/demo_adk_web.py) | **Google ADK Web** — `adk web` UI + `/run` API demo | `hapi` | No |
+
+**Google ADK** (requires `pip install google-adk`):
 
 ```bash
-# Feedback loops (public HAPI server)
+# CLI — scripted adk run scenarios + interactive instructions
+python3 scripts/demo_adk_cli.py
+python3 scripts/demo_adk_cli.py --scenario valid
+
+# Web — API demo then browser UI (default), or UI only
+python3 scripts/demo_adk_web.py
+python3 scripts/demo_adk_web.py --serve-only    # blocks; open http://localhost:8080
+python3 scripts/demo_adk_web.py --api-only --port 8080   # API against running server
+```
+
+**Public servers (no API key):**
+
+```bash
+# Loop engineering — cache, validate, execute, learner escalation
 python3 scripts/demo_loops.py
 
-# Structured agent traceability reports
+# Compact traceability reports
 python3 scripts/demo_traceability.py
+
+# Full agent traceability — pipeline steps, audit log, human-gate lifecycle
+python3 scripts/demo_agent_traceability.py
+python3 scripts/demo_agent_traceability.py --server firely
 ```
 
-### mock.health (authenticated sandbox)
-
-With `MOCK_HEALTH_API_KEY` set in `.env.local`:
+**mock.health** (set `MOCK_HEALTH_API_KEY` in `.env.local` first):
 
 ```bash
-python3 -c "
-from src.agentic_layer.graph.validation_workflow import run_validation_workflow
-r = run_validation_workflow({
-    'query_url': 'Patient?_count=1',
-    'server_key': 'mockhealth',
-    'mode': 'validate_and_execute',
-})
-print(r['final_output'])
-"
+# Loop demo — validate/execute, learner escalation, auth-scoped cache
+python3 scripts/demo_loops_mockhealth.py
+python3 scripts/demo_loops_mockhealth.py --mode validate_only
+
+# Agent traceability with JSON export for presentations
+python3 scripts/demo_agent_traceability.py --server mockhealth --export traces.json
 ```
 
-### Explore with Jupyter Notebook
+**Makefile shortcuts:**
+
+```bash
+make demo-loops          # HAPI loop demo
+make demo-trace          # Structured trace reports
+make demo-agent-trace    # Per-agent trace + audit trail
+make demo-mockhealth     # mock.health loop demo (requires .env.local)
+make demo-adk-cli        # Google ADK CLI demo (adk run)
+make demo-adk-web        # Google ADK Web UI (adk web, blocks until Ctrl+C)
+make test                # Run full test suite
+```
+
+### Jupyter notebook
 
 ```bash
 jupyter notebook examples/notebooks/demo_loops.ipynb
 ```
 
-The notebook includes public server switching, mock.health (when the API key is set), and human-escalation scenarios.
+The notebook covers public server switching (`hapi`, `firely`), mock.health (when the API key is set), and human-escalation scenarios. CLI scripts above mirror and extend those flows for terminal-based demos.
 
 ### Run tests
 
 ```bash
 python3 -m pytest tests/ -q
+# 136 tests — unit + integration; ~99% coverage on src/agentic_layer (unit suite)
 ```
 
 ### Key Documentation
@@ -205,8 +243,17 @@ okf generate --repo . --output docs/knowledge-bundle.md
 docs/           → Specifications, architecture, and guides
 planning/       → Detailed phase-by-phase planning artifacts
 src/agentic_layer/ → All agents and the main workflow
-scripts/        → Demo scripts (loops + traceability)
-tests/          → Unit, regression, and integration tests
+scripts/        → Demo scripts (see Quick Start table)
+  demo_loops.py              → HAPI feedback loops
+  demo_traceability.py       → Structured trace reports
+  demo_agent_traceability.py → Per-agent pipeline + audit + human gate
+  demo_loops_mockhealth.py   → mock.health loop demo
+  demo_adk_cli.py            → Google ADK CLI demo (adk run)
+  demo_adk_web.py            → Google ADK Web demo (adk web + API)
+  _demo_utils.py             → Shared demo helpers
+fhir_validator_agent/ → ADK entry point (root_agent for adk run / adk web)
+tests/          → Unit, integration, and regression tests (136 tests)
+examples/       → Jupyter notebook (demo_loops.ipynb)
 ```
 
 ---
@@ -219,7 +266,7 @@ tests/          → Unit, regression, and integration tests
 
 The implementation now **meets the core acceptance criteria** across all five agent specs. The workflow is orchestrated as a **Google ADK 2.0 graph** (`root_agent` in `fhir_validator_agent/agent.py`) with a shared engine in `workflow_engine.py`, while `run_validation_workflow()` remains available for demos and tests.
 
-Real HTTP I/O, auth forwarding, CapabilityStatement-driven validation, tiered escalation, and the spec output contract are implemented. **41 tests** cover unit, integration, and regression paths.
+Real HTTP I/O, auth forwarding, CapabilityStatement-driven validation, tiered escalation, and the spec output contract are implemented. **136 tests** cover unit, integration, and regression paths (~99% `src/agentic_layer` coverage on the unit suite).
 
 **Remaining gaps:** 0 critical bugs; a small number of production-hardening and documentation items (see [Remaining open items](#remaining-open-items)).
 
@@ -244,7 +291,8 @@ Real HTTP I/O, auth forwarding, CapabilityStatement-driven validation, tiered es
 - **Escalation** — learner at 3+ failures / 10 min; human at 5+ failures / 15 min or high-severity; structured audit log
 - **Human gate** — pause, notify (demo channel), review decision, resume; severity levels
 - **Output contract** — `{valid, server_used, errors, warnings, executed, results}` in `final_output`
-- **Tests** — auth, cache, execution, validation, rule/learner, human gate, ADK workflow, integration paths
+- **Demos** — CLI scripts for HAPI loops, agent traceability, and mock.health; Makefile targets wired
+- **Tests** — auth, cache, execution, validation, rule/learner, human gate, ADK workflow, workflow engine, integration paths
 
 ### Resolved critical gaps (2026-06-30)
 
@@ -275,8 +323,8 @@ These are **non-blocking** for the demo; they are production or documentation fo
 
 | Sev | Area | Item |
 |-----|------|------|
-| docs | Demos / Makefile | Notebook covers multi-server, mock.health, and human gate; CLI scripts HAPI-only; `Makefile` targets still stubs |
 | suggestion | Human gate | Notification is stdout-based; production needs email/ticket/dashboard integration |
+| suggestion | Demos | Langfuse integration documented but optional; not enabled by default in demo scripts |
 | suggestion | OAuth | Client credentials supported; authorization-code / PKCE / token rotation not implemented |
 | suggestion | Cache | In-memory only; Redis or distributed cache not wired |
 | suggestion | Learner | Per-user guidance only; global rule updates from learner not implemented (spec open question) |
