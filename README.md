@@ -1,402 +1,151 @@
 # fhir-query-validator-factory
 
-> **Demonstration repository** showcasing how to apply **Software Factory** principles when building agentic systems using Google ADK.
+Demonstration repository for building **agentic FHIR query validation** with [Software Factory](docs/process-overview.md) principles — spec-driven development, specialist agents, feedback loops, human oversight, and traceability. Orchestrated with **Google ADK 2.0**.
 
-**In a nutshell**: This project shows a disciplined, spec-driven way to build observable and governable agentic AI systems — with explicit feedback loops, human oversight, and strong traceability.
+**Status (2026-06-30):** Phases 0–5 complete. All five agent specs meet core acceptance criteria. **148 tests** passing (~99% unit coverage on `src/agentic_layer`).
 
 ---
 
-## Environment Setup
+## Quick start
 
 **Requirements:** Python 3.11+
 
-Dependencies are declared in [`pyproject.toml`](pyproject.toml). You can use **[uv](https://docs.astral.sh/uv/)** (recommended) or plain `pip` — both work; `uv` is not required.
-
-### Option A: uv (recommended)
-
 ```bash
-# Install uv if needed: https://docs.astral.sh/uv/getting-started/installation/
-
-uv venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-
-uv pip install -e ".[dev]"  # core + pytest + ruff
-# Optional extras:
-# uv pip install -e ".[dev,adk-cli,observability]"
-```
-
-### Option B: pip
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-
+python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
+cp .env.example .env.local   # add MOCK_HEALTH_API_KEY if using mock.health
 ```
 
-### Secrets and server configuration
+### Run a demo
 
-Copy the example env file and add any API keys locally (never commit `.env.local`):
+All demos make **live HTTP requests** to FHIR servers.
 
-```bash
-cp .env.example .env.local
-```
+| Command | What it shows |
+|---------|---------------|
+| `make demo-loops` | HAPI — cache → validate → execute → learner escalation |
+| `make demo-agent-trace` | Per-agent pipeline, audit trail, human pause → resume |
+| `make demo-mockhealth` | Authenticated mock.health loops (needs `.env.local`) |
+| `make demo-adk-cli` | Google ADK CLI (`adk run`) scenarios |
+| `make demo-adk-web` | Google ADK Web UI + API |
+| `make test` | Full test suite |
+| `make security` | Bandit + pip-audit |
 
-| Variable | Purpose |
-|----------|---------|
-| `FHIR_DEFAULT_SERVER_KEY` | Default server (`hapi`, `firely`, `spark`, `wildfhir`, `mockhealth`) |
-| `MOCK_HEALTH_API_KEY` | Bearer API key for [mock.health](https://mock.health/docs) (`server_key: mockhealth`) |
+See [`scripts/`](scripts/) for all demo scripts. ADK entry point: [`fhir_validator_agent/agent.py`](fhir_validator_agent/agent.py) (`adk run`, `adk web`).
 
-`python-dotenv` loads `.env.local` automatically at startup. See [Configuration](docs/configuration.md) and [Public Test Servers](docs/public-test-servers.md).
-
----
-
-## Quick Start
-
-### Demo scripts
-
-All demos call `run_validation_workflow()` and make **live HTTP requests** to FHIR servers. Loop and trace output appears in the terminal.
-
-| Script | Purpose | Server(s) | Auth required |
-|--------|---------|-----------|---------------|
-| [`scripts/demo_loops.py`](scripts/demo_loops.py) | Feedback loops — valid query + learner escalation | `hapi` | No |
-| [`scripts/demo_traceability.py`](scripts/demo_traceability.py) | Structured trace reports (validation, escalation, execution) | `hapi` | No |
-| [`scripts/demo_agent_traceability.py`](scripts/demo_agent_traceability.py) | Per-agent pipeline trace, audit trail, human pause → review → resume | `hapi`, `firely`, `mockhealth` | Only for `mockhealth` |
-| [`scripts/demo_loops_mockhealth.py`](scripts/demo_loops_mockhealth.py) | Same loops as `demo_loops.py` on the mock.health sandbox | `mockhealth` | Yes (`MOCK_HEALTH_API_KEY`) |
-| [`scripts/demo_adk_cli.py`](scripts/demo_adk_cli.py) | **Google ADK CLI** — `adk run` scenarios, graph node events, JSONL; learner scenario runs in-process | `hapi` | No |
-| [`scripts/demo_adk_web.py`](scripts/demo_adk_web.py) | **Google ADK Web** — `adk web` UI + `/run` API demo (default: API then blocks on server) | `hapi` | No |
-
-**Google ADK** (requires `pip install google-adk`):
+**No API key (public servers):**
 
 ```bash
-# CLI — scripted adk run scenarios + interactive instructions
-python3 scripts/demo_adk_cli.py
-python3 scripts/demo_adk_cli.py --scenario valid
-
-# Web — API demo then browser UI (default), or UI only
-python3 scripts/demo_adk_web.py
-python3 scripts/demo_adk_web.py --serve-only    # blocks; open http://localhost:8080
-python3 scripts/demo_adk_web.py --api-only --port 8080   # API against running server
-```
-
-**Public servers (no API key):**
-
-```bash
-# Loop engineering — cache, validate, execute, learner escalation
 python3 scripts/demo_loops.py
-
-# Compact traceability reports
-python3 scripts/demo_traceability.py
-
-# Full agent traceability — pipeline steps, audit log, human-gate lifecycle
-python3 scripts/demo_agent_traceability.py
 python3 scripts/demo_agent_traceability.py --server firely
 ```
 
-**mock.health** (set `MOCK_HEALTH_API_KEY` in `.env.local` first):
-
-```bash
-# Loop demo — validate/execute, learner escalation, auth-scoped cache
-python3 scripts/demo_loops_mockhealth.py
-python3 scripts/demo_loops_mockhealth.py --mode validate_only
-
-# Agent traceability with JSON export for presentations
-python3 scripts/demo_agent_traceability.py --server mockhealth --export traces.json
-```
-
-**Makefile shortcuts:**
-
-```bash
-make demo-loops          # HAPI loop demo
-make demo-trace          # Structured trace reports
-make demo-agent-trace    # Per-agent trace + audit trail
-make demo-mockhealth     # mock.health loop demo (requires .env.local)
-make demo-adk-cli        # Google ADK CLI demo (adk run)
-make demo-adk-web        # Google ADK Web API demo + UI (blocks until Ctrl+C)
-make test                # Run full test suite
-```
-
-### Jupyter notebook
-
-```bash
-jupyter notebook examples/notebooks/demo_loops.ipynb
-```
-
-The notebook covers public server switching (`hapi`, `firely`), mock.health (when the API key is set), and human-escalation scenarios. CLI scripts above mirror and extend those flows for terminal-based demos.
+**mock.health** — set `MOCK_HEALTH_API_KEY` in `.env.local`, then `make demo-mockhealth`.
 
 ### Run tests
 
 ```bash
 python3 -m pytest tests/ -q
-# 137 tests — unit + integration; ~99% coverage on src/agentic_layer (unit suite)
 ```
 
-### Key Documentation
+---
 
-| Document                        | Purpose                                      |
-|--------------------------------|----------------------------------------------|
-| [Process Overview](docs/process-overview.md) | End-to-end methodology (with Mermaid diagram) |
-| [Architecture](docs/architecture.md)         | System design and specialist agents          |
-| [Loop Engineering](docs/loop-engineering.md) | Explanation of feedback loops                |
-| [Traceability](docs/traceability.md)         | How to observe agent decisions               |
-| [Configuration](docs/configuration.md)       | How to configure servers and authentication  |
-| [Public Test Servers](docs/public-test-servers.md) | Server catalog including mock.health   |
-| [Specifications](docs/spec/)                 | Detailed behavior specs for each agent       |
-| [Implementation Review](docs/reviews/spec-implementation-compliance-review.md) | E2E demo + compliance report |
-| [Spec vs Code Gap Review](#spec-vs-code-gap-review) | Implementation alignment summary |
+## What it does
+
+A generalized FHIR search query validator that:
+
+1. Fetches and caches each server's **CapabilityStatement**
+2. **Validates** `query_url` against supported resources and search parameters
+3. **Executes** valid queries (optional)
+4. Detects **repeated invalid patterns** and escalates to a learner or human reviewer
+5. Returns a structured **`final_output`** contract and audit trail
+
+Escalation thresholds: learner at **3+** failures / 10 min; human at **5+** failures / 15 min (or high-severity).
 
 ---
 
-## What is This Project?
+## Project structure
 
-This repository demonstrates a **modern Software Factory approach** for developing agentic AI systems. It evolves the ideas from the original [fhirqueryvalidator](https://github.com/yogesh-parte/fhirqueryvalidator) into a more intelligent, generalized, and observable system.
-
-Instead of building agents in an ad-hoc way, this project follows a structured process:
-- Clear upfront planning and specifications
-- Specialist agents with narrow responsibilities
-- Explicit feedback loops (including learning and human escalation)
-- Strong emphasis on traceability and governance
-
-The result is a working demonstration of a **generalized FHIR query validator** that can validate any parameter from a CapabilityStatement, execute queries, detect repeated user errors, and respond intelligently.
+```
+src/agentic_layer/     Agents, workflow engine, auth, config
+fhir_validator_agent/  ADK root_agent (adk run / adk web)
+scripts/               Demo scripts + _demo_utils.py
+tests/                 Unit, integration, regression (148 tests)
+docs/                  Specs, architecture, guides, reviews
+planning/              Phase 0–5 roadmap (see planning/README.md)
+examples/notebooks/    Jupyter demo (demo_loops.ipynb)
+```
 
 ---
 
-## Methodology / Process Overview
+## Documentation
+
+| Topic | Link |
+|-------|------|
+| Process & methodology | [docs/process-overview.md](docs/process-overview.md) |
+| Architecture | [docs/architecture.md](docs/architecture.md) |
+| Feedback loops | [docs/loop-engineering.md](docs/loop-engineering.md) |
+| Traceability | [docs/traceability.md](docs/traceability.md) |
+| Configuration & secrets | [docs/configuration.md](docs/configuration.md) · [.env.example](.env.example) |
+| Public test servers | [docs/public-test-servers.md](docs/public-test-servers.md) |
+| Agent specifications | [docs/spec/](docs/spec/) |
+| Planning roadmap | [planning/README.md](planning/README.md) |
+
+### Reviews
+
+Detailed audit reports live in `docs/reviews/` — not duplicated here.
+
+| Review | Summary |
+|--------|---------|
+| [Spec compliance](docs/reviews/spec-implementation-compliance-review.md) | Implementation vs `docs/spec/*.md` |
+| [OWASP security](docs/reviews/owasp-security-review.md) | Pass 1 → hardening → Pass 2 (2026-06-30) |
+
+**Spec verdict:** all five agent specs — **closed** for core acceptance criteria.
+
+**Security verdict:** acceptable for **local demos** by default; enable `FHIR_*` production flags (see `.env.example`) before networked ADK Web deployment. Threat model in [`fhir_validator_agent/agent.py`](fhir_validator_agent/agent.py).
+
+---
+
+## Methodology
 
 ```mermaid
-flowchart TD
-    subgraph Human_Planning["Human-Centric Planning Layer"]
-        P0[Phase 0: Ideation & Problem Definition]
-        P1[Phase 1: Requirements & Structured Planning]
-        P2[Phase 2: Architecture & Key Decisions]
-        P0 --> P1 --> P2
-    end
-
-    subgraph Spec_Driven["Spec-Driven Development"]
-        S1[Create Detailed Specifications] --> S2[Define Feedback Loops & Human Gates]
-    end
-
-    subgraph Implementation["Implementation (Google ADK + Codex)"]
-        I1[Phase 3: Scaffolding + Core Agents] --> I2[Phase 4: Loop Engineering]
-    end
-
-    subgraph Observability["Traceability & Observability"]
-        T1[Structured Logging] --> T2[Trace Reports] --> T3[Optional Langfuse]
-    end
-
-    subgraph Knowledge["Knowledge Packaging"]
-        K1[Generate OKF Knowledge Bundle]
-    end
-
-    P2 --> Spec_Driven
-    S2 --> Implementation
-    I2 --> Observability
-    T3 --> Knowledge
-
-    style Human_Planning fill:#e3f2fd,stroke:#1565c0
-    style Spec_Driven fill:#fff3e0,stroke:#ef6c00
-    style Implementation fill:#e8f5e9,stroke:#2e7d32
-    style Observability fill:#f3e5f5,stroke:#7b1fa2
-    style Knowledge fill:#e0f7fa,stroke:#00838f
+flowchart LR
+    Plan[Planning & Specs] --> Build[ADK Agents + Loops]
+    Build --> Verify[Tests & Reviews]
+    Verify --> Demo[Demos & Traceability]
 ```
 
-**Core Principles**:
-- Planning is the highest-leverage activity
-- Spec-Driven Development before coding
-- Specialist Agents + Explicit Feedback Loops
-- Human Oversight at critical points
-- Traceability & Observability by design
-
----
-
-## Project Goals
-
-- Demonstrate a **repeatable pattern** for building agentic systems
-- Show the value of **explicit loop engineering**
-- Maintain **human governance** in agentic workflows
-- Provide strong **traceability** and observability
-- Create reusable documentation and specifications
+Phases 0–5 are documented in [`planning/`](planning/). Core principles: spec before code, specialist agents, explicit loops, human gates, observable decisions.
 
 ---
 
 ## Technology
 
-- **Primary**: Google Agent Development Kit (ADK) + `agents-cli`
-- **Language**: Python
-- **Optional Observability**: Langfuse
+- **Google ADK 2.0** — graph workflow (`Workflow` + shared `execute_workflow()`)
+- **Python 3.11+** — `httpx`, `authlib`, `pydantic`
+- **Optional** — Langfuse observability, `agents-cli`
 
 ---
 
-## Repository Knowledge
+## TODO
 
-This project follows a **documentation-first** approach. We recommend using the [OKF skill](https://github.com/YPCC/grok-custom-skills) to generate a structured knowledge bundle from this repository:
+Non-blocking follow-ups tracked here; see [Phase 5](planning/phase-5-demo-hardening-and-governance.md) for detail.
 
-```bash
-okf generate --repo . --output docs/knowledge-bundle.md
-```
-
----
-
-## Project Structure
-
-```
-docs/           → Specifications, architecture, and guides
-planning/       → Detailed phase-by-phase planning artifacts
-src/agentic_layer/ → All agents and the main workflow
-scripts/        → Demo scripts (see Quick Start table)
-  demo_loops.py              → HAPI feedback loops
-  demo_traceability.py       → Structured trace reports
-  demo_agent_traceability.py → Per-agent pipeline + audit + human gate
-  demo_loops_mockhealth.py   → mock.health loop demo
-  demo_adk_cli.py            → Google ADK CLI demo (adk run)
-  demo_adk_web.py            → Google ADK Web demo (adk web + API)
-  _demo_utils.py             → Shared demo helpers (scenarios, ADK event parsing, reset_singletons)
-fhir_validator_agent/ → ADK entry point (root_agent for adk run / adk web)
-tests/          → Unit, integration, and regression tests (137 tests)
-examples/       → Jupyter notebook (demo_loops.ipynb)
-```
+| Priority | Item |
+|----------|------|
+| P2 | Notebook parity — add mock.health and human-gate cells to match CLI demos |
+| P2 | Align `docs/loop-engineering.md` with code (ETag/304, 10m/15m thresholds) |
+| P2 | Commit reproducible lockfile (`uv.lock` or `requirements.lock`) |
+| P3 | `follow_redirects=False` on `CacheAgent` metadata fetch |
+| suggestion | Human-gate notification beyond stdout (email/ticket/dashboard) |
+| suggestion | Distributed cache (Redis); Langfuse enabled in a demo path |
+| suggestion | OAuth authorization-code / PKCE; token rotation |
+| suggestion | ADK deployment automation (Agent Engine / Cloud Run) |
+| suggestion | Refresh OKF knowledge bundle (`docs/knowledge-bundle.md`) |
 
 ---
 
-## Spec vs Code Gap Review
+## Contributing
 
-*Review date: 2026-06-30. Compares `docs/spec/*.md` against `src/agentic_layer/` implementation.*
+This is a living reference demo. Feedback and contributions are welcome.
 
-### Verdict
-
-The implementation now **meets the core acceptance criteria** across all five agent specs. The workflow is orchestrated as a **Google ADK 2.0 graph** (`root_agent` in `fhir_validator_agent/agent.py`) with a shared engine in `workflow_engine.py`, while `run_validation_workflow()` remains available for demos and tests.
-
-Real HTTP I/O, auth forwarding, CapabilityStatement-driven validation, tiered escalation, and the spec output contract are implemented. **137 tests** cover unit, integration, and regression paths (~99% `src/agentic_layer` coverage on the unit suite).
-
-**Remaining gaps:** 0 critical bugs; a small number of production-hardening and documentation items (see [Remaining open items](#remaining-open-items)).
-
-### Spec acceptance criteria status
-
-| Spec | Acceptance criteria (summary) | Implementation status |
-|------|------------------------------|------------------------|
-| [query-validation-spec](docs/spec/query-validation-spec.md) | Multi-server config, auth, full CapabilityStatement validation, cross-server patterns, auth errors | **Closed** — dynamic validation via `query_parser` + `interpreted_capability`; auth errors; unknown `server_key` raises |
-| [cache-agent-spec](docs/spec/cache-agent-spec.md) | Auth-aware fetch, hybrid invalidation, decision logging | **Closed** — Bearer/OAuth headers, auth-scoped keys, TTL + ETag/304, miss/hit/refresh logging |
-| [query-execution-spec](docs/spec/query-execution-spec.md) | Real execution, auth headers, structured responses, timing | **Closed** — `httpx` execution with auth, structured errors, `elapsed_ms` |
-| [rule-and-learner-spec](docs/spec/rule-and-learner-spec.md) | Pattern detection, learner vs human escalation, CapabilityStatement-based guidance, audit | **Closed** — tiered thresholds, audit log, capability-aware learner guidance |
-| [human-intervention-spec](docs/spec/human-intervention-spec.md) | Triggers, pause/notify/review/resume, audit, severity | **Closed** — pause gate, review/resume API, severity classification, audit records |
-
-### What is implemented
-
-- **ADK graph workflow** — linear `Workflow` with `@node` functions: initialize → pipeline → finalize; escalation runs inside the shared engine (`validation_workflow.py`, `workflow_engine.py`)
-- **ADK / agents-cli entry point** — `fhir_validator_agent/agent.py` (`adk run`, `adk web`)
-- **CapabilityStatement validation** — resource types, search params, modifiers, comparators, chained params
-- **Auth** — Bearer + OAuth2 client credentials (`authlib`); per-server API keys (e.g. `MOCK_HEALTH_API_KEY` for `mockhealth`); headers on cache and execution
-- **mock.health** — authenticated FHIR sandbox at `https://api.mock.health/fhir` (`server_key: mockhealth`)
-- **Cache** — hybrid TTL + conditional ETag/304; auth-scoped keys; admin invalidation via `FHIR_CACHE_INVALIDATE` / `FHIR_CACHE_INVALIDATE_KEYS`
-- **Escalation** — learner at 3+ failures / 10 min; human at 5+ failures / 15 min or high-severity; structured audit log
-- **Human gate** — pause, notify (demo channel), review decision, resume; severity levels
-- **Output contract** — `{valid, server_used, errors, warnings, executed, results}` in `final_output`
-- **Demos** — CLI scripts for HAPI loops, agent traceability, and mock.health; Makefile targets wired
-- **Tests** — auth, cache, execution, validation, rule/learner, human gate, ADK workflow, workflow engine, integration paths
-
-### Resolved critical gaps (2026-06-30)
-
-| Area | Was | Now |
-|------|-----|-----|
-| **Validation** | Hard-coded substring checks | Parses `query_url` against `interpreted_capability` |
-| **HTTP I/O** | Simulated responses | Real `httpx` metadata + search requests |
-| **Auth** | Env vars unused | Bearer/OAuth via `auth/provider.py`, forwarded on all HTTP |
-| **Cache** | TTL only | TTL + ETag/304 + auth-scoped keys |
-| **Escalation** | Always `"learner"` | Learner and human paths with audit reasoning |
-| **Output** | Non-spec shape | Matches query-validation-spec JSON schema |
-| **Orchestration** | ADK-style stub | Google ADK 2.0 `Workflow` graph |
-
-### Threshold reconciliation (code)
-
-Code implements reconciled thresholds from the specs (README priority fix #4):
-
-| Path | Threshold | Source spec |
-|------|-----------|-------------|
-| Learner escalation | 3+ invalid queries within **10 minutes** | `rule-and-learner-spec.md` |
-| Human escalation | 5+ invalid queries within **15 minutes** (or high-severity) | `human-intervention-spec.md` |
-
-Pattern history is keyed by **`user_id` + `server_key`**.
-
-### Remaining open items
-
-These are **non-blocking** for the demo; they are production or documentation follow-ups:
-
-| Sev | Area | Item |
-|-----|------|------|
-| suggestion | Human gate | Notification is stdout-based; production needs email/ticket/dashboard integration |
-| suggestion | Demos | Langfuse integration documented but optional; not enabled by default in demo scripts |
-| suggestion | OAuth | Client credentials with in-memory token reuse; authorization-code / PKCE / token rotation not implemented |
-| suggestion | Cache | In-memory only; Redis or distributed cache not wired |
-| suggestion | Learner | Per-user guidance only; global rule updates from learner not implemented (spec open question) |
-| suggestion | Deployment | ADK graph is runnable locally; Agent Engine / Cloud Run deployment is documented but not automated in-repo |
-
-### Resolved issues by spec (formerly open)
-
-<details>
-<summary>query-validation-spec — all former bugs closed</summary>
-
-- CapabilityStatement-driven validation in `query_validator.py`
-- Modifiers/comparators in `capability_interpreter.py`
-- `auth_token` in workflow state; spec `final_output` schema
-- Unknown `server_key` raises `UnknownServerKeyError`
-- OAuth/Bearer used via `auth/provider.py` and `get_auth_headers()`
-- Real HTTP CapabilityStatement fetch in `cache_agent.py`
-- Pattern history keyed by `user_id` + `server_key`
-</details>
-
-<details>
-<summary>cache-agent-spec — all former bugs closed</summary>
-
-- `Authorization` header on fetch; auth-scoped cache keys
-- Conditional ETag/304 requests within TTL
-- `invalidate()` honors `FHIR_CACHE_INVALIDATE` env signals
-- Cache decision logging (miss, hit, 304, refresh, expire)
-</details>
-
-<details>
-<summary>query-execution-spec — all former bugs closed</summary>
-
-- Real FHIR HTTP execution; auth header forwarding
-- `auth_token` passed through workflow; `elapsed_ms` timing
-- Tests in `test_query_execution.py`
-</details>
-
-<details>
-<summary>rule-and-learner-spec — all former bugs closed</summary>
-
-- Tiered learner vs human escalation in `rule_agent.py`
-- Reconciled 10 min / 15 min thresholds; typed `error_type` tracking
-- CapabilityStatement-based guidance in `search_learner_agent.py`
-- Structured audit log with reasoning
-- Tests in `test_rule_agent.py`, `test_search_learner.py`
-</details>
-
-<details>
-<summary>human-intervention-spec — all former bugs closed</summary>
-
-- Human branch live in workflow; pause/notify/review/resume in `human_gate.py`
-- Persistent audit records; severity classification
-- Tests in `test_human_gate.py`; integration human-escalation path
-</details>
-
-<details>
-<summary>configuration and tests — former bugs closed</summary>
-
-- Protected server registration via `FHIR_USE_AUTH` + `FHIR_SERVER_BASE`
-- Integration tests: valid query, human escalation, unknown server key
-- Cache tests: expiry, auth-scoped keys, 304, invalidation
-</details>
-
----
-
-## Status
-
-This is a living demonstration project. It is intended as a **reference example** of how to apply Software Factory principles to modern agentic AI development.
-
-The [Spec vs Code Gap Review](#spec-vs-code-gap-review) above tracks alignment between specifications and the current implementation. Core spec acceptance criteria are **closed** as of 2026-06-30; remaining items are production-hardening and doc updates.
-
-Feedback and contributions are welcome.
-
----
-
-*Built with strong emphasis on planning, specifications, feedback loops, and observability.*
+*Built with emphasis on planning, specifications, feedback loops, and observability.*
