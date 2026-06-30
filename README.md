@@ -6,22 +6,91 @@
 
 ---
 
+## Environment Setup
+
+**Requirements:** Python 3.11+
+
+Dependencies are declared in [`pyproject.toml`](pyproject.toml). You can use **[uv](https://docs.astral.sh/uv/)** (recommended) or plain `pip` — both work; `uv` is not required.
+
+### Option A: uv (recommended)
+
+```bash
+# Install uv if needed: https://docs.astral.sh/uv/getting-started/installation/
+
+uv venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+
+uv pip install -e ".[dev]"  # core + pytest + ruff
+# Optional extras:
+# uv pip install -e ".[dev,adk-cli,observability]"
+```
+
+### Option B: pip
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+
+pip install -e ".[dev]"
+```
+
+### Secrets and server configuration
+
+Copy the example env file and add any API keys locally (never commit `.env.local`):
+
+```bash
+cp .env.example .env.local
+```
+
+| Variable | Purpose |
+|----------|---------|
+| `FHIR_DEFAULT_SERVER_KEY` | Default server (`hapi`, `firely`, `spark`, `wildfhir`, `mockhealth`) |
+| `MOCK_HEALTH_API_KEY` | Bearer API key for [mock.health](https://mock.health/docs) (`server_key: mockhealth`) |
+
+`python-dotenv` loads `.env.local` automatically at startup. See [Configuration](docs/configuration.md) and [Public Test Servers](docs/public-test-servers.md).
+
+---
+
 ## Quick Start
 
 ### Run the Demos
 
 ```bash
-# See feedback loops in action
-python scripts/demo_loops.py
+# Feedback loops (public HAPI server)
+python3 scripts/demo_loops.py
 
-# See structured agent traceability reports
-python scripts/demo_traceability.py
+# Structured agent traceability reports
+python3 scripts/demo_traceability.py
+```
+
+### mock.health (authenticated sandbox)
+
+With `MOCK_HEALTH_API_KEY` set in `.env.local`:
+
+```bash
+python3 -c "
+from src.agentic_layer.graph.validation_workflow import run_validation_workflow
+r = run_validation_workflow({
+    'query_url': 'Patient?_count=1',
+    'server_key': 'mockhealth',
+    'mode': 'validate_and_execute',
+})
+print(r['final_output'])
+"
 ```
 
 ### Explore with Jupyter Notebook
 
 ```bash
 jupyter notebook examples/notebooks/demo_loops.ipynb
+```
+
+The notebook includes public server switching, mock.health (when the API key is set), and human-escalation scenarios.
+
+### Run tests
+
+```bash
+python3 -m pytest tests/ -q
 ```
 
 ### Key Documentation
@@ -33,8 +102,10 @@ jupyter notebook examples/notebooks/demo_loops.ipynb
 | [Loop Engineering](docs/loop-engineering.md) | Explanation of feedback loops                |
 | [Traceability](docs/traceability.md)         | How to observe agent decisions               |
 | [Configuration](docs/configuration.md)       | How to configure servers and authentication  |
+| [Public Test Servers](docs/public-test-servers.md) | Server catalog including mock.health   |
 | [Specifications](docs/spec/)                 | Detailed behavior specs for each agent       |
-| [Spec vs Code Gap Review](#spec-vs-code-gap-review) | Known gaps between specs and implementation |
+| [Implementation Review](docs/reviews/spec-implementation-compliance-review.md) | E2E demo + compliance report |
+| [Spec vs Code Gap Review](#spec-vs-code-gap-review) | Implementation alignment summary |
 
 ---
 
@@ -148,7 +219,7 @@ tests/          → Unit, regression, and integration tests
 
 The implementation now **meets the core acceptance criteria** across all five agent specs. The workflow is orchestrated as a **Google ADK 2.0 graph** (`root_agent` in `fhir_validator_agent/agent.py`) with a shared engine in `workflow_engine.py`, while `run_validation_workflow()` remains available for demos and tests.
 
-Real HTTP I/O, auth forwarding, CapabilityStatement-driven validation, tiered escalation, and the spec output contract are implemented. **38 tests** cover unit, integration, and regression paths.
+Real HTTP I/O, auth forwarding, CapabilityStatement-driven validation, tiered escalation, and the spec output contract are implemented. **41 tests** cover unit, integration, and regression paths.
 
 **Remaining gaps:** 0 critical bugs; a small number of production-hardening and documentation items (see [Remaining open items](#remaining-open-items)).
 
@@ -167,7 +238,8 @@ Real HTTP I/O, auth forwarding, CapabilityStatement-driven validation, tiered es
 - **ADK graph workflow** — `Workflow` with `@node` functions: initialize → pipeline → finalize (`validation_workflow.py`)
 - **ADK / agents-cli entry point** — `fhir_validator_agent/agent.py` (`adk run`, `adk web`)
 - **CapabilityStatement validation** — resource types, search params, modifiers, comparators, chained params
-- **Auth** — Bearer + OAuth2 client credentials (`authlib`); headers on cache and execution; protected server via `FHIR_USE_AUTH`
+- **Auth** — Bearer + OAuth2 client credentials (`authlib`); per-server API keys (e.g. `MOCK_HEALTH_API_KEY` for `mockhealth`); headers on cache and execution
+- **mock.health** — authenticated FHIR sandbox at `https://api.mock.health/fhir` (`server_key: mockhealth`)
 - **Cache** — hybrid TTL + conditional ETag/304; auth-scoped keys; admin invalidation via `FHIR_CACHE_INVALIDATE` / `FHIR_CACHE_INVALIDATE_KEYS`
 - **Escalation** — learner at 3+ failures / 10 min; human at 5+ failures / 15 min or high-severity; structured audit log
 - **Human gate** — pause, notify (demo channel), review decision, resume; severity levels
@@ -204,6 +276,7 @@ These are **non-blocking** for the demo; they are production or documentation fo
 | Sev | Area | Item |
 |-----|------|------|
 | docs | `loop-engineering.md` | Still references 5-minute threshold; should be updated to match code (10 min / 15 min) |
+| docs | Demos / Makefile | `demo_loops.py` and notebook cover multi-server + mock.health; `Makefile` targets still stubs |
 | suggestion | Human gate | Notification is stdout-based; production needs email/ticket/dashboard integration |
 | suggestion | OAuth | Client credentials supported; authorization-code / PKCE / token rotation not implemented |
 | suggestion | Cache | In-memory only; Redis or distributed cache not wired |
