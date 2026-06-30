@@ -4,6 +4,8 @@ Core validation workflow engine shared by ADK graph nodes and legacy runner.
 
 from __future__ import annotations
 
+import os
+from dataclasses import dataclass
 from typing import Any, Optional
 
 import httpx
@@ -17,29 +19,87 @@ from ..agents import (
     RuleAgent,
     SearchLearnerAgent,
 )
+from ..auth.identity import resolve_workflow_user_id
 from ..config.settings import DEFAULT_SERVERS, get_auth_headers, get_server_config
 from ..exceptions import AuthenticationRequiredError, CapabilityFetchError, UnknownServerKeyError
 from ..state.workflow_state import ValidationWorkflowState
 from ..utils.audit_log import AuditLog
 
-# Shared singletons preserve cross-request pattern history in demos/tests.
-_audit_log = AuditLog()
-cache_agent = CacheAgent()
-interpreter = CapabilityInterpreterAgent()
-validator = QueryValidatorAgent()
-executor = QueryExecutionAgent()
-rule_agent = RuleAgent(audit_log=_audit_log)
-learner_agent = SearchLearnerAgent()
-human_gate = HumanInterventionGate(audit_log=_audit_log)
+
+@dataclass
+class WorkflowAgents:
+    """Bundle of workflow agents — shared singleton or per-request isolated instance."""
+
+    audit_log: AuditLog
+    cache_agent: CacheAgent
+    interpreter: CapabilityInterpreterAgent
+    validator: QueryValidatorAgent
+    executor: QueryExecutionAgent
+    rule_agent: RuleAgent
+    learner_agent: SearchLearnerAgent
+    human_gate: HumanInterventionGate
+
+    def reset(self) -> None:
+        """Clear in-memory agent state."""
+        self.cache_agent._cache.clear()
+        self.validator._pattern_history.clear()
+        self.human_gate._paused_users.clear()
+        self.human_gate._pending_reviews.clear()
+        self.audit_log._records.clear()
+
+
+_default_agents: Optional[WorkflowAgents] = None
+
+
+def _build_agents() -> WorkflowAgents:
+    audit_log = AuditLog()
+    return WorkflowAgents(
+        audit_log=audit_log,
+        cache_agent=CacheAgent(),
+        interpreter=CapabilityInterpreterAgent(),
+        validator=QueryValidatorAgent(),
+        executor=QueryExecutionAgent(),
+        rule_agent=RuleAgent(audit_log=audit_log),
+        learner_agent=SearchLearnerAgent(),
+        human_gate=HumanInterventionGate(audit_log=audit_log),
+    )
+
+
+def workflow_isolation_enabled() -> bool:
+    """When true, each execute_workflow call uses a fresh agent bundle."""
+    return os.getenv("FHIR_WORKFLOW_ISOLATE_STATE", "false").lower() == "true"
+
+
+def get_workflow_agents(*, isolate: bool = False) -> WorkflowAgents:
+    """Return shared singleton agents or a fresh isolated bundle."""
+    global _default_agents
+    if isolate:
+        return _build_agents()
+    if _default_agents is None:
+        _default_agents = _build_agents()
+    return _default_agents
+
+
+def _sync_module_exports(agents: WorkflowAgents) -> None:
+    """Keep legacy module-level aliases pointed at the default singleton."""
+    global _audit_log, cache_agent, interpreter, validator, executor, rule_agent, learner_agent, human_gate
+    _audit_log = agents.audit_log
+    cache_agent = agents.cache_agent
+    interpreter = agents.interpreter
+    validator = agents.validator
+    executor = agents.executor
+    rule_agent = agents.rule_agent
+    learner_agent = agents.learner_agent
+    human_gate = agents.human_gate
+
+
+_default = get_workflow_agents()
+_sync_module_exports(_default)
 
 
 def reset_singletons() -> None:
     """Clear module-level agent state between demos and tests."""
-    cache_agent._cache.clear()
-    validator._pattern_history.clear()
-    human_gate._paused_users.clear()
-    human_gate._pending_reviews.clear()
-    _audit_log._records.clear()
+    get_workflow_agents().reset()
 
 
 def build_final_output(state: ValidationWorkflowState) -> dict[str, Any]:
@@ -66,8 +126,12 @@ def build_final_output(state: ValidationWorkflowState) -> dict[str, Any]:
 def execute_workflow(initial: dict[str, Any]) -> ValidationWorkflowState:
     """Run the full validation workflow synchronously."""
     state = ValidationWorkflowState.model_validate(initial)
+    isolate = workflow_isolation_enabled() or bool(initial.get("isolate_state"))
+    agents = get_workflow_agents(isolate=isolate)
 
-    if state.user_id and human_gate.is_paused(state.user_id):
+    state.user_id = resolve_workflow_user_id(state.user_id, state.auth_token)
+
+    if state.user_id and agents.human_gate.is_paused(state.user_id):
         state.workflow_error = f"User '{state.user_id}' is paused pending human review."
         state.validation_result = {
             "valid": False,
@@ -119,7 +183,7 @@ def execute_workflow(initial: dict[str, Any]) -> ValidationWorkflowState:
 
     print("\n=== [LOOP] Cache Invalidation Loop ===")
     try:
-        state.capability_statement = cache_agent.get_capability_statement(
+        state.capability_statement = agents.cache_agent.get_capability_statement(
             state.server_key,
             auth_token=state.auth_token,
         )
@@ -130,10 +194,10 @@ def execute_workflow(initial: dict[str, Any]) -> ValidationWorkflowState:
     except httpx.RequestError as exc:
         raise CapabilityFetchError(str(exc)) from exc
 
-    state.interpreted_capability = interpreter.interpret(state.capability_statement)
+    state.interpreted_capability = agents.interpreter.interpret(state.capability_statement)
 
     print("\n=== [LOOP] Validation + Pattern Detection ===")
-    state.validation_result = validator.validate(
+    state.validation_result = agents.validator.validate(
         query_url=state.query_url,
         interpreted_capability=state.interpreted_capability,
         user_id=state.user_id,
@@ -143,7 +207,7 @@ def execute_workflow(initial: dict[str, Any]) -> ValidationWorkflowState:
 
     if state.validation_result.get("valid") and state.mode == "validate_and_execute":
         print("\n=== [LOOP] Validation → Execution Loop ===")
-        state.execution_result = executor.execute(
+        state.execution_result = agents.executor.execute(
             query_url=state.query_url,
             server_key=state.server_key,
             auth_token=state.auth_token,
@@ -153,7 +217,7 @@ def execute_workflow(initial: dict[str, Any]) -> ValidationWorkflowState:
 
     print("\n=== [LOOP] Pattern Detection → Learning / Human Escalation ===")
     if state.pattern_detected:
-        decision, audit = rule_agent.decide_escalation(
+        decision, audit = agents.rule_agent.decide_escalation(
             pattern_detected=True,
             validation_result=state.validation_result,
             user_id=state.user_id,
@@ -163,13 +227,13 @@ def execute_workflow(initial: dict[str, Any]) -> ValidationWorkflowState:
         state.escalation_audit = audit
 
         if decision == "learner":
-            state.learner_guidance = learner_agent.provide_guidance(
+            state.learner_guidance = agents.learner_agent.provide_guidance(
                 query_url=state.query_url,
                 validation_result=state.validation_result,
                 interpreted_capability=state.interpreted_capability,
             )
         elif decision == "human":
-            state.human_review = human_gate.request_human_review({
+            state.human_review = agents.human_gate.request_human_review({
                 "query_url": state.query_url,
                 "user_id": state.user_id,
                 "server_key": state.server_key,

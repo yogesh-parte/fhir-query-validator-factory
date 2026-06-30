@@ -9,6 +9,8 @@ from typing import Dict, Any, Optional
 import httpx
 
 from ..config.settings import get_server_config, get_auth_headers
+from ..utils.logging_safe import format_query_log_label
+from ..utils.url_safety import UnsafeQueryUrlError, build_fhir_target_url
 
 
 class QueryExecutionAgent:
@@ -27,9 +29,19 @@ class QueryExecutionAgent:
         """
         server = get_server_config(server_key)
         auth_headers = get_auth_headers(server, auth_token_override=auth_token)
-        target_url = f"{server.base_url}/{query_url.lstrip('/')}"
 
-        print(f"[QueryExecution] Executing query on {server.name}: {target_url}")
+        try:
+            target_url = build_fhir_target_url(server.base_url, query_url)
+        except UnsafeQueryUrlError as exc:
+            return {
+                "executed": False,
+                "status": "error",
+                "error_type": "invalid_query_url",
+                "message": str(exc),
+            }
+
+        log_label = format_query_log_label(query_url)
+        print(f"[QueryExecution] Executing query on {server.name}: {log_label}")
 
         headers = {
             "Accept": "application/fhir+json, application/json",
@@ -38,7 +50,7 @@ class QueryExecutionAgent:
 
         start = time.perf_counter()
         try:
-            with httpx.Client(timeout=30.0) as client:
+            with httpx.Client(timeout=30.0, follow_redirects=False) as client:
                 response = client.get(target_url, headers=headers)
             elapsed_ms = round((time.perf_counter() - start) * 1000, 2)
 

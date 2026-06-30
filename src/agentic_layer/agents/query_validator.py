@@ -10,6 +10,7 @@ import time
 from collections import defaultdict
 from typing import Any, Dict, List, Optional, Tuple
 
+from ..utils.logging_safe import format_query_log_label
 from ..utils.query_parser import parse_query_url
 
 # Reconciled thresholds across specs (README priority fix #4).
@@ -38,7 +39,7 @@ class QueryValidatorAgent:
         server_key: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Validate the query and detect patterns when user_id is provided."""
-        print(f"[QueryValidator] Validating query: {query_url}")
+        print(f"[QueryValidator] Validating query: {format_query_log_label(query_url)}")
 
         errors: list[str] = []
         warnings: list[str] = []

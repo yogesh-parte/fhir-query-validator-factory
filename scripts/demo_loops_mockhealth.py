@@ -73,11 +73,10 @@ def run_scenario(
 
 
 def run_demo(default_mode: str) -> None:
-    api_key = require_mockhealth_key()
-    masked = f"{api_key[:8]}...{api_key[-4:]}" if len(api_key) > 12 else "(set)"
+    require_mockhealth_key()
     print("FHIR Query Validator Factory — mock.health Loop Demo\n")
     print(f"Server     : {SERVER_KEY} → https://api.mock.health/fhir")
-    print(f"API Key    : {masked} (from MOCK_HEALTH_API_KEY)")
+    print("API Key    : (set) (from MOCK_HEALTH_API_KEY)")
     print(f"Auth scope : Bearer token forwarded to cache + execution agents")
     print(f"Env file   : .env.local loaded={os.path.exists('.env.local')}\n")
 

@@ -10,7 +10,9 @@ import uuid
 from enum import Enum
 from typing import Any, Dict, Optional
 
+from ..auth.operator import verify_human_gate_operator
 from ..utils.audit_log import AuditLog
+from ..utils.logging_safe import format_query_log_label, verbose_logging_enabled
 
 
 class InterventionSeverity(str, Enum):
@@ -78,13 +80,20 @@ class HumanInterventionGate:
         print(f"[HumanInterventionGate] Human review requested (severity={severity.value}).")
         self._notify(review_record)
 
+        audit_context = review_record if verbose_logging_enabled() else {
+            "review_id": review_id,
+            "severity": severity.value,
+            "server_key": context.get("server_key"),
+            "query_label": format_query_log_label(context.get("query_url") or ""),
+        }
+
         audit = self.audit_log.record(
             event_type="human_intervention_requested",
             decision="paused_pending_review",
             reasoning=f"Human review triggered with severity {severity.value}.",
             user_id=user_id,
             server_key=context.get("server_key"),
-            context=review_record,
+            context=audit_context,
         )
 
         return {
@@ -105,7 +114,10 @@ class HumanInterventionGate:
         reviewer: str,
         decision: str,
         rationale: str,
+        operator_token: Optional[str] = None,
     ) -> Dict[str, Any]:
+        verify_human_gate_operator(operator_token=operator_token, reviewer=reviewer)
+
         review = self._pending_reviews.get(review_id)
         if not review:
             raise ValueError(f"Unknown review_id: {review_id}")
