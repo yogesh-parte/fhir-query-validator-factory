@@ -105,12 +105,12 @@
 
 ## 7. Success Criteria
 
-- [ ] QueryExecution Agent successfully executes validated queries on public servers
-- [ ] Pattern detection correctly identifies repeated invalid queries from the same user
-- [ ] Rule Agent makes appropriate escalation decisions
-- [ ] Search Learner Agent provides helpful, relevant suggestions
-- [ ] Human Intervention Gate can be triggered and logged
-- [ ] Full end-to-end flow with feedback loops works in a demo
+- [x] QueryExecution Agent successfully executes validated queries on public servers
+- [x] Pattern detection correctly identifies repeated invalid queries from the same user
+- [x] Rule Agent makes appropriate escalation decisions
+- [x] Search Learner Agent provides helpful, relevant suggestions
+- [x] Human Intervention Gate can be triggered and logged
+- [x] Full end-to-end flow with feedback loops works in a demo
 
 ## 8. Alignment with Software Factory
 
@@ -125,8 +125,20 @@ This phase is critical for demonstrating **loop engineering** — one of the cor
 - Strong demonstration of the Software Factory methodology
 
 **Next Steps after Phase 4:**
-- Move to **Phase 5**: Final documentation, demo polish, and creation of final knowledge artifacts (including potential OKF bundle)
+- ~~Move to **Phase 5**~~ → **Completed** — see [`phase-5-demo-hardening-and-governance.md`](phase-5-demo-hardening-and-governance.md)
+
+## 10. Post-phase outcomes (2026-06-30)
+
+Delivered beyond original Phase 4 scope (see Phase 5):
+
+- Google ADK CLI/Web demos (`demo_adk_cli.py`, `demo_adk_web.py`, `fhir_validator_agent/`)
+- Agent traceability and mock.health loop demos
+- OWASP security review + opt-in hardening (URL safety, operator auth, workflow isolation)
+- 148 tests; ~99% unit coverage on `src/agentic_layer`
+- CI security workflow (Bandit + pip-audit)
+
+Original Phase 4 out-of-scope item *“Production-grade security hardening”* was addressed in Phase 5 as **opt-in** controls preserving demo defaults.
 
 ---
 
-**Phase 4 Planning Complete**
+**Phase 4 Complete**
