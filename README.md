@@ -63,8 +63,8 @@ All demos call `run_validation_workflow()` and make **live HTTP requests** to FH
 | [`scripts/demo_traceability.py`](scripts/demo_traceability.py) | Structured trace reports (validation, escalation, execution) | `hapi` | No |
 | [`scripts/demo_agent_traceability.py`](scripts/demo_agent_traceability.py) | Per-agent pipeline trace, audit trail, human pause → review → resume | `hapi`, `firely`, `mockhealth` | Only for `mockhealth` |
 | [`scripts/demo_loops_mockhealth.py`](scripts/demo_loops_mockhealth.py) | Same loops as `demo_loops.py` on the mock.health sandbox | `mockhealth` | Yes (`MOCK_HEALTH_API_KEY`) |
-| [`scripts/demo_adk_cli.py`](scripts/demo_adk_cli.py) | **Google ADK CLI** — `adk run` scenarios, graph node events, JSONL | `hapi` | No |
-| [`scripts/demo_adk_web.py`](scripts/demo_adk_web.py) | **Google ADK Web** — `adk web` UI + `/run` API demo | `hapi` | No |
+| [`scripts/demo_adk_cli.py`](scripts/demo_adk_cli.py) | **Google ADK CLI** — `adk run` scenarios, graph node events, JSONL; learner scenario runs in-process | `hapi` | No |
+| [`scripts/demo_adk_web.py`](scripts/demo_adk_web.py) | **Google ADK Web** — `adk web` UI + `/run` API demo (default: API then blocks on server) | `hapi` | No |
 
 **Google ADK** (requires `pip install google-adk`):
 
@@ -112,7 +112,7 @@ make demo-trace          # Structured trace reports
 make demo-agent-trace    # Per-agent trace + audit trail
 make demo-mockhealth     # mock.health loop demo (requires .env.local)
 make demo-adk-cli        # Google ADK CLI demo (adk run)
-make demo-adk-web        # Google ADK Web UI (adk web, blocks until Ctrl+C)
+make demo-adk-web        # Google ADK Web API demo + UI (blocks until Ctrl+C)
 make test                # Run full test suite
 ```
 
@@ -128,7 +128,7 @@ The notebook covers public server switching (`hapi`, `firely`), mock.health (whe
 
 ```bash
 python3 -m pytest tests/ -q
-# 136 tests — unit + integration; ~99% coverage on src/agentic_layer (unit suite)
+# 137 tests — unit + integration; ~99% coverage on src/agentic_layer (unit suite)
 ```
 
 ### Key Documentation
@@ -250,9 +250,9 @@ scripts/        → Demo scripts (see Quick Start table)
   demo_loops_mockhealth.py   → mock.health loop demo
   demo_adk_cli.py            → Google ADK CLI demo (adk run)
   demo_adk_web.py            → Google ADK Web demo (adk web + API)
-  _demo_utils.py             → Shared demo helpers
+  _demo_utils.py             → Shared demo helpers (scenarios, ADK event parsing, reset_singletons)
 fhir_validator_agent/ → ADK entry point (root_agent for adk run / adk web)
-tests/          → Unit, integration, and regression tests (136 tests)
+tests/          → Unit, integration, and regression tests (137 tests)
 examples/       → Jupyter notebook (demo_loops.ipynb)
 ```
 
@@ -266,7 +266,7 @@ examples/       → Jupyter notebook (demo_loops.ipynb)
 
 The implementation now **meets the core acceptance criteria** across all five agent specs. The workflow is orchestrated as a **Google ADK 2.0 graph** (`root_agent` in `fhir_validator_agent/agent.py`) with a shared engine in `workflow_engine.py`, while `run_validation_workflow()` remains available for demos and tests.
 
-Real HTTP I/O, auth forwarding, CapabilityStatement-driven validation, tiered escalation, and the spec output contract are implemented. **136 tests** cover unit, integration, and regression paths (~99% `src/agentic_layer` coverage on the unit suite).
+Real HTTP I/O, auth forwarding, CapabilityStatement-driven validation, tiered escalation, and the spec output contract are implemented. **137 tests** cover unit, integration, and regression paths (~99% `src/agentic_layer` coverage on the unit suite).
 
 **Remaining gaps:** 0 critical bugs; a small number of production-hardening and documentation items (see [Remaining open items](#remaining-open-items)).
 
@@ -282,7 +282,7 @@ Real HTTP I/O, auth forwarding, CapabilityStatement-driven validation, tiered es
 
 ### What is implemented
 
-- **ADK graph workflow** — `Workflow` with `@node` functions: initialize → pipeline → finalize (`validation_workflow.py`)
+- **ADK graph workflow** — linear `Workflow` with `@node` functions: initialize → pipeline → finalize; escalation runs inside the shared engine (`validation_workflow.py`, `workflow_engine.py`)
 - **ADK / agents-cli entry point** — `fhir_validator_agent/agent.py` (`adk run`, `adk web`)
 - **CapabilityStatement validation** — resource types, search params, modifiers, comparators, chained params
 - **Auth** — Bearer + OAuth2 client credentials (`authlib`); per-server API keys (e.g. `MOCK_HEALTH_API_KEY` for `mockhealth`); headers on cache and execution
@@ -325,7 +325,7 @@ These are **non-blocking** for the demo; they are production or documentation fo
 |-----|------|------|
 | suggestion | Human gate | Notification is stdout-based; production needs email/ticket/dashboard integration |
 | suggestion | Demos | Langfuse integration documented but optional; not enabled by default in demo scripts |
-| suggestion | OAuth | Client credentials supported; authorization-code / PKCE / token rotation not implemented |
+| suggestion | OAuth | Client credentials with in-memory token reuse; authorization-code / PKCE / token rotation not implemented |
 | suggestion | Cache | In-memory only; Redis or distributed cache not wired |
 | suggestion | Learner | Per-user guidance only; global rule updates from learner not implemented (spec open question) |
 | suggestion | Deployment | ADK graph is runnable locally; Agent Engine / Cloud Run deployment is documented but not automated in-repo |

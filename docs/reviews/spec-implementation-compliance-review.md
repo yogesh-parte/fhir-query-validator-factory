@@ -200,7 +200,7 @@ All specs are marked **Draft** with open questions. Compliance below reflects **
 | Human path observable | ⚠️ Partial | [`human_gate.py`](../../src/agentic_layer/agents/human_gate.py) | Not in demo scripts |
 | Audit logging | ✅ Met | [`audit_log.py`](../../src/agentic_layer/utils/audit_log.py) | — |
 
-**ADK note:** [`route_escalation`](../../src/agentic_layer/graph/nodes.py) not wired in graph edges.
+**ADK note:** Escalation runs inside [`workflow_engine.py`](../../src/agentic_layer/graph/workflow_engine.py); the ADK graph is a linear initialize → pipeline → finalize wrapper.
 
 ---
 
@@ -240,7 +240,7 @@ Gaps: no live-network tests; Makefile stubs; human pause not in integration test
 
 ### Gaps summary (Pass 1)
 
-**Implementation (non-blocking):** in-memory cache, no Last-Modified, OAuth client-credentials only, `route_escalation` unused, stdout human notifications.
+**Implementation (non-blocking):** in-memory cache, no Last-Modified, OAuth client-credentials with in-memory token reuse, stdout human notifications.
 
 **E2E (blocking full showcase):** D-01 demos HAPI-only; D-02 no auth demo; D-03 no human path in scripts; D-05 Makefile stubs.
 

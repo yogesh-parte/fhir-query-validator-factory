@@ -10,8 +10,8 @@ flowchart TD
         C --> D[Human Architecture Approval Gate]
     end
 
-    subgraph Agentic_Orchestration["Agentic Orchestration Layer<br/>(Google ADK Graph Workflow + agents-cli)"]
-        E[ADK Graph Workflow Orchestrator]
+    subgraph Agentic_Orchestration["Agentic Orchestration Layer<br/>(Shared workflow engine + ADK graph wrapper)"]
+        E[Workflow Engine / ADK Graph Entry]
         
         E --> F[CacheAgent]
         E --> G[CapabilityInterpreter Agent]

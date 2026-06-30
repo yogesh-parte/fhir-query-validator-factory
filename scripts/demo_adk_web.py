@@ -31,31 +31,37 @@ from typing import Any
 
 import httpx
 
-from _demo_utils import adk_available, agent_dir, project_root, require_adk, summarize_final_output
+from _demo_utils import (
+    HAPI_DEMO_SCENARIOS,
+    adk_available,
+    agent_dir,
+    parse_adk_events,
+    project_root,
+    require_adk,
+    summarize_final_output,
+)
 
 APP_NAME = "fhir_validator_agent"
 DEFAULT_PORT = 8080
 
-API_SCENARIOS: list[dict[str, Any]] = [
-    {
-        "name": "Valid query (validate + execute)",
-        "user_id": "web-demo-alice",
-        "state": {
-            "query_url": "Patient?gender=male",
-            "server_key": "hapi",
-            "mode": "validate_and_execute",
+
+def _api_scenarios() -> list[dict[str, Any]]:
+    return [
+        {
+            "name": HAPI_DEMO_SCENARIOS["valid"]["title"],
+            "user_id": "web-demo-alice",
+            "state": {
+                **HAPI_DEMO_SCENARIOS["valid"]["state"],
+            },
         },
-    },
-    {
-        "name": "Invalid query (validation errors)",
-        "user_id": "web-demo-bob",
-        "state": {
-            "query_url": "Patient?not_a_real_param=true",
-            "server_key": "hapi",
-            "mode": "validate_only",
+        {
+            "name": HAPI_DEMO_SCENARIOS["invalid"]["title"],
+            "user_id": "web-demo-bob",
+            "state": {
+                **HAPI_DEMO_SCENARIOS["invalid"]["state"],
+            },
         },
-    },
-]
+    ]
 
 
 def _base_url(port: int) -> str:
@@ -111,19 +117,6 @@ def run_agent(client: httpx.Client, user_id: str, session_id: str) -> list[dict[
     return response.json()
 
 
-def extract_final_output(events: list[dict[str, Any]]) -> dict[str, Any]:
-    final_output: dict[str, Any] = {}
-    node_paths: list[str] = []
-    for event in events:
-        node_info = event.get("nodeInfo") or {}
-        if node_info.get("path"):
-            node_paths.append(node_info["path"])
-        delta = (event.get("actions") or {}).get("stateDelta") or {}
-        if delta.get("final_output"):
-            final_output = delta["final_output"]
-    return {"final_output": final_output, "node_paths": node_paths}
-
-
 def run_api_demo(port: int) -> None:
     print("\n" + "=" * 78)
     print("ADK WEB API DEMO")
@@ -136,7 +129,7 @@ def run_api_demo(port: int) -> None:
             print(f"Expected app '{APP_NAME}' not found. Apps listed: {apps}")
             sys.exit(1)
 
-        for scenario in API_SCENARIOS:
+        for scenario in _api_scenarios():
             user_id = scenario["user_id"]
             state = scenario["state"]
             print("\n" + "-" * 78)
@@ -146,7 +139,7 @@ def run_api_demo(port: int) -> None:
 
             session_id = create_session(client, user_id, state)
             events = run_agent(client, user_id, session_id)
-            summary = extract_final_output(events)
+            summary = parse_adk_events(events)
 
             if summary["node_paths"]:
                 print("\nADK graph nodes:")
@@ -170,7 +163,7 @@ def print_web_instructions(port: int) -> None:
     print(f"Select agent: {APP_NAME}")
     print()
     print("Set initial session state in the UI (or via API) with fields such as:")
-    print('  query_url, server_key, mode, user_id')
+    print("  query_url, server_key, mode, user_id")
     print()
     print("Example state JSON:")
     print(

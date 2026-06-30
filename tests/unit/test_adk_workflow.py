@@ -9,3 +9,4 @@ def test_root_agent_is_adk_workflow():
     assert "initialize_workflow" in node_names
     assert "run_validation_pipeline" in node_names
     assert "finalize_output" in node_names
+    assert "route_escalation" not in node_names

@@ -34,7 +34,7 @@ demo-adk-cli:
 	python3 scripts/demo_adk_cli.py
 
 demo-adk-web:
-	python3 scripts/demo_adk_web.py --serve-only
+	python3 scripts/demo_adk_web.py
 
 spec-check:
 	@echo "Checking documentation specs..."

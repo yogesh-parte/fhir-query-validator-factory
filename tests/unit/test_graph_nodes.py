@@ -8,9 +8,28 @@ import pytest
 from src.agentic_layer.graph.nodes import (
     finalize_output,
     initialize_workflow,
-    route_escalation,
     run_validation_pipeline,
 )
+from src.agentic_layer.state.workflow_state import ValidationWorkflowState
+
+
+class DictState:
+    """Minimal ADK-like state bag for node unit tests."""
+
+    def __init__(self, initial: dict | None = None) -> None:
+        self._data = dict(initial or {})
+
+    def to_dict(self) -> dict:
+        return dict(self._data)
+
+    def __setitem__(self, key: str, value) -> None:
+        self._data[key] = value
+
+    def __getitem__(self, key: str):
+        return self._data[key]
+
+    def get(self, key: str, default=None):
+        return self._data.get(key, default)
 
 
 async def _run_node(node, ctx, node_input=None):
@@ -22,25 +41,8 @@ async def _run_node(node, ctx, node_input=None):
 
 def _ctx(state: dict | None = None) -> MagicMock:
     ctx = MagicMock()
-    ctx.state = dict(state or {})
+    ctx.state = DictState(state)
     return ctx
-
-
-@pytest.mark.parametrize(
-    ("decision", "expected_route"),
-    [
-        ("human", "human"),
-        ("learner", "learner"),
-        ("none", "none"),
-        (None, "none"),
-    ],
-)
-def test_route_escalation_branches(decision, expected_route):
-    ctx = _ctx({"escalation_decision": decision})
-
-    events = asyncio.run(_run_node(route_escalation, ctx))
-
-    assert events[0].actions.route == expected_route
 
 
 def test_initialize_workflow_requires_query_url():
@@ -72,14 +74,12 @@ def test_run_validation_pipeline_skips_when_workflow_error_set():
 
 @patch("src.agentic_layer.graph.nodes.execute_workflow")
 def test_run_validation_pipeline_delegates_to_engine(mock_execute):
-    mock_execute.return_value = MagicMock(
-        model_dump=lambda: {
-            "query_url": "Patient?gender=male",
-            "server_key": "hapi",
-            "validation_result": {"valid": True, "errors": [], "warnings": []},
-            "execution_result": {"executed": False},
-            "final_output": {"valid": True, "executed": False},
-        }
+    mock_execute.return_value = ValidationWorkflowState(
+        query_url="Patient?gender=male",
+        server_key="hapi",
+        validation_result={"valid": True, "errors": [], "warnings": []},
+        execution_result={"executed": False},
+        final_output={"valid": True, "executed": False},
     )
     ctx = _ctx({
         "query_url": "Patient?gender=male",

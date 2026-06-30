@@ -68,7 +68,12 @@ This is the most important loop for demonstrating intelligent behavior:
 | Validation → Execution           | Safety        | QueryValidator + QueryExecution     | Prevent invalid execution            | Medium             |
 | Pattern → Learner / Human        | Meta / Learning | QueryValidator + Rule + Learner/Human | Self-correction + responsible AI   | High               |
 
-These loops are explicitly wired in `src/agentic_layer/graph/validation_workflow.py` and can be observed when running the demo.
+These loops are orchestrated in `src/agentic_layer/graph/workflow_engine.py` and exposed via:
+
+- `run_validation_workflow()` — synchronous entry point for demos and tests
+- Google ADK `root_agent` — linear graph (`initialize` → `run_validation_pipeline` → `finalize`) that delegates to the same engine
+
+Run `python3 scripts/demo_loops.py` or `python3 scripts/demo_adk_cli.py` to observe loop output in the terminal.
 
 ---
 

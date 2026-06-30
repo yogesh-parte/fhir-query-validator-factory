@@ -7,11 +7,11 @@ Features:
 - Optional Langfuse integration
 """
 
-import sys
-import os
 from datetime import datetime
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from _demo_utils import add_project_root_to_path
+
+add_project_root_to_path()
 
 from src.agentic_layer.graph.validation_workflow import run_validation_workflow
 

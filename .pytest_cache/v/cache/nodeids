@@ -36,6 +36,7 @@
   "tests/unit/test_auth_provider.py::test_build_auth_provider_returns_none_without_credentials",
   "tests/unit/test_auth_provider.py::test_get_auth_provider_caches_provider",
   "tests/unit/test_auth_provider.py::test_oauth2_provider_fetches_token",
+  "tests/unit/test_auth_provider.py::test_oauth2_provider_reuses_cached_token",
   "tests/unit/test_auth_provider.py::test_resolve_auth_headers_falls_back_to_static_token",
   "tests/unit/test_auth_provider.py::test_resolve_auth_headers_override_takes_priority",
   "tests/unit/test_auth_provider.py::test_resolve_auth_headers_public_server",
@@ -54,6 +55,9 @@
   "tests/unit/test_capability_interpreter.py::test_interpreter_extracts_modifiers_and_comparators",
   "tests/unit/test_capability_interpreter.py::test_interpreter_returns_empty_on_malformed_payload",
   "tests/unit/test_capability_interpreter.py::test_interpreter_skips_resources_without_type",
+  "tests/unit/test_demo_utils.py::test_parse_adk_events_from_event_list",
+  "tests/unit/test_demo_utils.py::test_parse_adk_events_from_stdout",
+  "tests/unit/test_demo_utils.py::test_parse_jsonl_events_ignores_non_json_lines",
   "tests/unit/test_graph_nodes.py::test_finalize_output_builds_contract_when_missing",
   "tests/unit/test_graph_nodes.py::test_finalize_output_preserves_existing_payload",
   "tests/unit/test_graph_nodes.py::test_initialize_workflow_accepts_valid_request",
@@ -136,5 +140,6 @@
   "tests/unit/test_workflow_engine.py::test_execute_workflow_mockhealth_missing_credentials",
   "tests/unit/test_workflow_engine.py::test_execute_workflow_unknown_server_key",
   "tests/unit/test_workflow_engine.py::test_execute_workflow_validate_and_execute",
-  "tests/unit/test_workflow_engine.py::test_execute_workflow_validate_only_success"
+  "tests/unit/test_workflow_engine.py::test_execute_workflow_validate_only_success",
+  "tests/unit/test_workflow_engine.py::test_reset_singletons_clears_pattern_history_and_cache"
 ]

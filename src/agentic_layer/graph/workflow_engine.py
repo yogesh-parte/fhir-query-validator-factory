@@ -33,6 +33,15 @@ learner_agent = SearchLearnerAgent()
 human_gate = HumanInterventionGate(audit_log=_audit_log)
 
 
+def reset_singletons() -> None:
+    """Clear module-level agent state between demos and tests."""
+    cache_agent._cache.clear()
+    validator._pattern_history.clear()
+    human_gate._paused_users.clear()
+    human_gate._pending_reviews.clear()
+    _audit_log._records.clear()
+
+
 def build_final_output(state: ValidationWorkflowState) -> dict[str, Any]:
     """Align final output with query-validation-spec JSON contract."""
     validation = state.validation_result or {}
@@ -60,14 +69,15 @@ def execute_workflow(initial: dict[str, Any]) -> ValidationWorkflowState:
 
     if state.user_id and human_gate.is_paused(state.user_id):
         state.workflow_error = f"User '{state.user_id}' is paused pending human review."
-        state.final_output = {
+        state.validation_result = {
             "valid": False,
-            "server_used": state.server_key,
             "errors": [state.workflow_error],
             "warnings": [],
-            "executed": False,
-            "results": None,
+            "error_types": ["user_paused"],
+            "pattern_detected": False,
         }
+        state.execution_result = {"executed": False}
+        state.final_output = build_final_output(state)
         return state
 
     try:

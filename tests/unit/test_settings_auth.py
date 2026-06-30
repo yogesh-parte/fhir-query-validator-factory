@@ -1,6 +1,6 @@
 import pytest
 
-from src.agentic_layer.config.settings import DEFAULT_SERVERS, get_server_config
+from src.agentic_layer.config.settings import BASE_SERVERS, DEFAULT_SERVERS, get_server_config
 from src.agentic_layer.exceptions import UnknownServerKeyError
 
 
@@ -9,16 +9,11 @@ def test_protected_server_registered_when_auth_enabled(monkeypatch):
     monkeypatch.setenv("FHIR_SERVER_BASE", "https://fhir.example.com/R4")
     monkeypatch.delenv("FHIR_DEFAULT_SERVER_KEY", raising=False)
 
-    if "protected" in DEFAULT_SERVERS:
-        del DEFAULT_SERVERS["protected"]
-
     config = get_server_config("protected")
 
     assert config.key == "protected"
     assert config.requires_auth is True
     assert config.base_url == "https://fhir.example.com/R4"
-
-    del DEFAULT_SERVERS["protected"]
 
 
 def test_public_server_does_not_require_auth(monkeypatch):
@@ -70,10 +65,10 @@ def test_firely_public_server_config(monkeypatch):
 
 
 def test_notebook_demo_servers_are_registered(monkeypatch):
-    """Notebook demo uses hapi, firely, mockhealth — all must be in DEFAULT_SERVERS."""
+    """Notebook demo uses hapi, firely, mockhealth — all must be in BASE_SERVERS."""
     monkeypatch.setenv("FHIR_USE_AUTH", "false")
     demo_keys = {"hapi", "firely", "mockhealth"}
-    assert demo_keys.issubset(DEFAULT_SERVERS.keys())
+    assert demo_keys.issubset(BASE_SERVERS.keys())
     assert DEFAULT_SERVERS["mockhealth"]["requires_auth"] is True
     assert DEFAULT_SERVERS["mockhealth"]["auth_token_env"] == "MOCK_HEALTH_API_KEY"
 
@@ -113,15 +108,9 @@ def test_get_auth_headers_uses_global_provider_when_configured(monkeypatch):
     from src.agentic_layer.config import settings as settings_module
 
     settings_module._auth_provider_cache = None
-    if "protected" in DEFAULT_SERVERS:
-        del DEFAULT_SERVERS["protected"]
-
     config = get_server_config("protected")
     headers = get_auth_headers(config)
     assert headers == {"Authorization": "Bearer global-token"}
-
-    if "protected" in DEFAULT_SERVERS:
-        del DEFAULT_SERVERS["protected"]
     settings_module._auth_provider_cache = None
 
 
@@ -137,12 +126,10 @@ def test_use_auth_without_server_base_skips_protected_registration(monkeypatch):
     monkeypatch.setenv("FHIR_USE_AUTH", "true")
     monkeypatch.delenv("FHIR_SERVER_BASE", raising=False)
 
-    if "protected" in DEFAULT_SERVERS:
-        del DEFAULT_SERVERS["protected"]
-
     config = get_server_config("hapi")
     assert config.key == "hapi"
-    assert "protected" not in DEFAULT_SERVERS
+    with pytest.raises(UnknownServerKeyError):
+        get_server_config("protected")
 
 
 def test_unknown_default_key_maps_to_protected_when_auth_enabled(monkeypatch):
@@ -154,12 +141,7 @@ def test_unknown_default_key_maps_to_protected_when_auth_enabled(monkeypatch):
     from src.agentic_layer.config import settings as settings_module
 
     settings_module._auth_provider_cache = None
-    if "protected" in DEFAULT_SERVERS:
-        del DEFAULT_SERVERS["protected"]
-
     config = get_server_config(None)
     assert config.key == "protected"
     assert config.auth_token == "protected-token"
-
-    del DEFAULT_SERVERS["protected"]
     settings_module._auth_provider_cache = None

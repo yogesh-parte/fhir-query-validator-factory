@@ -7,7 +7,11 @@ import pytest
 
 from src.agentic_layer.exceptions import AuthenticationRequiredError, CapabilityFetchError
 from src.agentic_layer.graph import workflow_engine
-from src.agentic_layer.graph.workflow_engine import build_final_output, execute_workflow
+from src.agentic_layer.graph.workflow_engine import (
+    build_final_output,
+    execute_workflow,
+    reset_singletons,
+)
 from src.agentic_layer.state.workflow_state import ValidationWorkflowState
 
 PATIENT_CAPABILITY = {
@@ -140,6 +144,22 @@ def test_execute_workflow_blocks_paused_user():
 
     assert state.final_output["valid"] is False
     assert "paused" in state.final_output["errors"][0].lower()
+    assert state.final_output["server_used"] == "hapi"
+    assert state.final_output["executed"] is False
+    assert state.final_output["pattern_detected"] is False
+    assert state.final_output["human_review_required"] is False
+
+
+def test_reset_singletons_clears_pattern_history_and_cache():
+    workflow_engine.cache_agent._cache["hapi"] = {"data": {}, "timestamp": 0}
+    workflow_engine.validator._pattern_history["user:hapi"] = [(0, "x")]
+    workflow_engine.human_gate._paused_users["user"] = {"review_id": "r-1"}
+
+    reset_singletons()
+
+    assert not workflow_engine.cache_agent._cache
+    assert not workflow_engine.validator._pattern_history
+    assert not workflow_engine.human_gate._paused_users
 
 
 def test_execute_workflow_unknown_server_key():

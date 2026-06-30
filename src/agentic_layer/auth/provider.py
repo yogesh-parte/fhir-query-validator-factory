@@ -30,7 +30,7 @@ class BearerTokenProvider:
 
 
 class OAuth2ClientCredentialsProvider:
-    """OAuth2 client credentials flow with token caching via authlib."""
+    """OAuth2 client credentials flow with in-memory token reuse."""
 
     def __init__(
         self,
@@ -42,11 +42,14 @@ class OAuth2ClientCredentialsProvider:
         self._client = OAuth2Client(client_id=client_id, client_secret=client_secret)
         self._token_url = token_url
         self._scope = scope
+        self._headers: Optional[dict[str, str]] = None
 
     def get_headers(self) -> dict[str, str]:
+        if self._headers is not None:
+            return dict(self._headers)
         token = self._client.fetch_token(self._token_url, scope=self._scope)
-        access_token = token["access_token"]
-        return {"Authorization": f"Bearer {access_token}"}
+        self._headers = {"Authorization": f"Bearer {token['access_token']}"}
+        return dict(self._headers)
 
 
 def build_auth_provider(settings: dict) -> Optional[AuthProvider]:

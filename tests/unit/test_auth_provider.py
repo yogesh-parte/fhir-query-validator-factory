@@ -117,6 +117,22 @@ def test_oauth2_provider_fetches_token(mock_oauth_client):
     )
 
 
+@patch("src.agentic_layer.auth.provider.OAuth2Client")
+def test_oauth2_provider_reuses_cached_token(mock_oauth_client):
+    mock_client = MagicMock()
+    mock_client.fetch_token.return_value = {"access_token": "oauth-access-token"}
+    mock_oauth_client.return_value = mock_client
+
+    provider = OAuth2ClientCredentialsProvider(
+        client_id="id",
+        client_secret="secret",
+        token_url="https://auth.example.com/token",
+    )
+    provider.get_headers()
+    provider.get_headers()
+    mock_client.fetch_token.assert_called_once()
+
+
 def test_auth_cache_suffix_empty_without_auth():
     assert auth_cache_suffix({}) == ""
 

@@ -1,15 +1,20 @@
 """Shared pytest fixtures."""
 
+import sys
+from pathlib import Path
+
 import pytest
+
+_SCRIPTS = Path(__file__).resolve().parent.parent / "scripts"
+if str(_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS))
 
 
 @pytest.fixture(autouse=True)
 def reset_workflow_singletons():
     """Isolate module-level workflow singletons between tests."""
-    from src.agentic_layer.graph import workflow_engine
+    from src.agentic_layer.graph.workflow_engine import reset_singletons
 
-    workflow_engine.cache_agent._cache.clear()
-    workflow_engine.validator._pattern_history.clear()
-    workflow_engine.human_gate._paused_users.clear()
-    workflow_engine.human_gate._pending_reviews.clear()
+    reset_singletons()
     yield
+    reset_singletons()

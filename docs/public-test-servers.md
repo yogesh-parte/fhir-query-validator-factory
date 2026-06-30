@@ -61,4 +61,4 @@ Synthetic FHIR R4 sandbox with US Core 6.1 resources. Useful for testing authent
 
 ## Adding more servers
 
-Extend `DEFAULT_SERVERS` in [`src/agentic_layer/config/settings.py`](../src/agentic_layer/config/settings.py). For authenticated servers, set `requires_auth: True` and `auth_token_env` to a dedicated environment variable name.
+Extend `BASE_SERVERS` in [`src/agentic_layer/config/settings.py`](../src/agentic_layer/config/settings.py) (exported as `DEFAULT_SERVERS` for backward compatibility). For authenticated servers, set `requires_auth: True` and `auth_token_env` to a dedicated environment variable name. The registry is immutable at runtime; a `protected` server is overlaid only when `FHIR_USE_AUTH=true` and `FHIR_SERVER_BASE` is set.

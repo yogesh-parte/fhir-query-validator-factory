@@ -25,136 +25,111 @@ import subprocess
 import sys
 from typing import Any
 
-from _demo_utils import adk_available, agent_dir, project_root, require_adk, summarize_final_output
+from _demo_utils import (
+    HAPI_DEMO_SCENARIOS,
+    adk_available,
+    agent_dir,
+    parse_adk_events,
+    project_root,
+    require_adk,
+    reset_workflow_singletons,
+    summarize_final_output,
+)
 
 AGENT_FOLDER = "fhir_validator_agent"
 
-SCENARIOS: dict[str, dict[str, Any]] = {
-    "valid": {
-        "title": "Valid query — cache → validate → execute",
-        "state": {
-            "query_url": "Patient?gender=male",
-            "server_key": "hapi",
-            "user_id": "adk-cli-alice",
-            "mode": "validate_and_execute",
-        },
-    },
-    "invalid": {
-        "title": "Invalid query — validation errors surfaced",
-        "state": {
-            "query_url": "Patient?not_a_real_param=true",
-            "server_key": "hapi",
-            "user_id": "adk-cli-bob",
-            "mode": "validate_only",
-        },
-    },
-    "learner": {
-        "title": "Repeated invalid queries — learner escalation",
-        "state": {
-            "query_url": "Patient?not_a_real_param=true",
-            "server_key": "hapi",
-            "user_id": "adk-cli-carol",
-            "mode": "validate_only",
-        },
-        "repeat": 3,
-    },
-}
+
+def run_adk_subprocess(name: str, config: dict[str, Any]) -> None:
+    state = {**config["state"], "user_id": config["state"].get("user_id", f"adk-cli-{name}")}
+    title = config["title"]
+
+    print("\n" + "=" * 78)
+    print(f"ADK CLI SCENARIO: {name} — {title}")
+    print("=" * 78)
+    print(f"Agent      : {AGENT_FOLDER}")
+    print(f"State      : {json.dumps(state)}")
+    print("-" * 78)
+
+    cmd = [
+        "adk",
+        "run",
+        AGENT_FOLDER,
+        "--state",
+        json.dumps(state),
+        "--jsonl",
+        "run",
+    ]
+
+    result = subprocess.run(
+        cmd,
+        cwd=project_root(),
+        capture_output=True,
+        text=True,
+    )
+
+    if result.returncode != 0 and not result.stdout.strip():
+        print(result.stderr or "adk run failed")
+        sys.exit(result.returncode)
+
+    summary = parse_adk_events(result.stdout)
+    _print_run_summary(summary, result.stderr)
 
 
-def _parse_jsonl_events(stdout: str) -> list[dict[str, Any]]:
-    events: list[dict[str, Any]] = []
-    for line in stdout.splitlines():
-        line = line.strip()
-        if not line.startswith("{"):
-            continue
-        try:
-            events.append(json.loads(line))
-        except json.JSONDecodeError:
-            continue
-    return events
+def run_learner_in_process(name: str, config: dict[str, Any]) -> None:
+    """
+    Learner escalation needs in-process pattern history.
+    Each `adk run` subprocess starts with a fresh validator singleton.
+    """
+    from src.agentic_layer.graph.validation_workflow import run_validation_workflow
 
-
-def _extract_run_summary(events: list[dict[str, Any]]) -> dict[str, Any]:
-    node_paths: list[str] = []
-    final_output: dict[str, Any] = {}
-    errors: list[str] = []
-
-    for event in events:
-        node_info = event.get("nodeInfo") or {}
-        path = node_info.get("path")
-        if path:
-            node_paths.append(path)
-
-        if event.get("errorMessage"):
-            errors.append(f"{event.get('errorCode')}: {event.get('errorMessage')}")
-
-        delta = (event.get("actions") or {}).get("stateDelta") or {}
-        if delta.get("final_output"):
-            final_output = delta["final_output"]
-
-    return {
-        "node_paths": node_paths,
-        "final_output": final_output,
-        "errors": errors,
+    repeat = config.get("repeat", 3)
+    base_state = {
+        **config["state"],
+        "user_id": config["state"].get("user_id", "adk-cli-learner"),
     }
 
+    print("\n" + "=" * 78)
+    print(f"IN-PROCESS SCENARIO: {name} — {config['title']}")
+    print("=" * 78)
+    print("Note: learner escalation accumulates pattern history in-process.")
+    print("      `adk run` subprocesses do not share validator state.")
+    print(f"Entry point: run_validation_workflow() × {repeat}")
+    print("-" * 78)
 
-def run_adk_scenario(name: str, config: dict[str, Any]) -> None:
-    repeat = config.get("repeat", 1)
+    reset_workflow_singletons()
+    last: dict[str, Any] | None = None
     for attempt in range(1, repeat + 1):
-        title = config["title"]
-        if repeat > 1:
-            title = f"{title} (attempt {attempt}/{repeat})"
+        print(f"\n--- Attempt {attempt}/{repeat} ---")
+        last = run_validation_workflow(base_state)
+        summarize_final_output(last["final_output"])
 
-        print("\n" + "=" * 78)
-        print(f"ADK CLI SCENARIO: {name} — {title}")
-        print("=" * 78)
-        print(f"Agent      : {AGENT_FOLDER}")
-        print(f"State      : {json.dumps(config['state'])}")
-        print("-" * 78)
+    if last and last["final_output"].get("escalation") == "learner":
+        guidance = last.get("learner_guidance") or {}
+        if guidance:
+            print(f"\nLearner suggestion: {guidance.get('suggestion', guidance.get('message', ''))}")
 
-        cmd = [
-            "adk",
-            "run",
-            AGENT_FOLDER,
-            "--state",
-            json.dumps(config["state"]),
-            "--jsonl",
-            "run",
-        ]
+    print("=" * 78)
 
-        result = subprocess.run(
-            cmd,
-            cwd=project_root(),
-            capture_output=True,
-            text=True,
-        )
 
-        if result.returncode != 0 and not result.stdout.strip():
-            print(result.stderr or "adk run failed")
-            sys.exit(result.returncode)
+def _print_run_summary(summary: dict[str, Any], stderr: str) -> None:
+    if summary["node_paths"]:
+        print("\n--- ADK GRAPH NODES ---")
+        for path in summary["node_paths"]:
+            print(f"  • {path}")
 
-        events = _parse_jsonl_events(result.stdout)
-        summary = _extract_run_summary(events)
+    if summary["errors"]:
+        print("\n--- ADK ERRORS ---")
+        for err in summary["errors"]:
+            print(f"  • {err}")
 
-        if summary["node_paths"]:
-            print("\n--- ADK GRAPH NODES ---")
-            for path in summary["node_paths"]:
-                print(f"  • {path}")
+    if summary["final_output"]:
+        summarize_final_output(summary["final_output"])
+    else:
+        print("\nNo final_output found in ADK events (check stderr logs).")
+        if stderr:
+            print(stderr[-500:])
 
-        if summary["errors"]:
-            print("\n--- ADK ERRORS ---")
-            for err in summary["errors"]:
-                print(f"  • {err}")
-
-        if summary["final_output"]:
-            summarize_final_output(summary["final_output"])
-        else:
-            print("\nNo final_output found in ADK events (check stderr logs).")
-            if result.stderr:
-                print(result.stderr[-500:])
-
-        print("=" * 78)
+    print("=" * 78)
 
 
 def print_interactive_instructions() -> None:
@@ -173,9 +148,7 @@ def print_interactive_instructions() -> None:
     )
     print()
     print("Structured JSONL output (for tooling):")
-    print(
-        "  adk run fhir_validator_agent --jsonl --state '{...}' run"
-    )
+    print("  adk run fhir_validator_agent --jsonl --state '{...}' run")
     print("=" * 78)
 
 
@@ -183,7 +156,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Google ADK CLI demo for FHIR Query Validator")
     parser.add_argument(
         "--scenario",
-        choices=[*SCENARIOS.keys(), "all"],
+        choices=[*HAPI_DEMO_SCENARIOS.keys(), "all"],
         default="all",
         help="Which scripted scenario to run (default: all)",
     )
@@ -207,9 +180,13 @@ def main() -> None:
         print_interactive_instructions()
         return
 
-    names = list(SCENARIOS) if args.scenario == "all" else [args.scenario]
+    names = list(HAPI_DEMO_SCENARIOS) if args.scenario == "all" else [args.scenario]
     for name in names:
-        run_adk_scenario(name, SCENARIOS[name])
+        config = HAPI_DEMO_SCENARIOS[name]
+        if config.get("in_process"):
+            run_learner_in_process(name, config)
+        else:
+            run_adk_subprocess(name, config)
 
     print_interactive_instructions()
     print("\nDemo complete.")

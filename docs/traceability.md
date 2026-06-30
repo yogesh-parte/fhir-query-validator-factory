@@ -29,6 +29,8 @@ Run the traceability demos to see this in action:
 python3 scripts/demo_traceability.py
 python3 scripts/demo_agent_traceability.py
 python3 scripts/demo_agent_traceability.py --server mockhealth --export traces.json
+python3 scripts/demo_adk_cli.py --scenario valid   # ADK graph node paths via JSONL
+python3 scripts/demo_adk_web.py --api-only --port 8080   # against a running adk web server
 ```
 
 ### 2. Trace Report
