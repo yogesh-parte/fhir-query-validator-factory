@@ -30,8 +30,14 @@ Together they implement a **meta-feedback loop** for continuous improvement and 
 | Decision Making                   | Choose between activating Search Learner Agent or triggering Human Intervention |
 | Logging & Observability           | Record pattern events for auditing and improvement |
 
-### Pattern Detection Criteria (Example)
-- Same user submits 3+ invalid queries within 10 minutes
+### Pattern Detection Criteria (canonical — implemented in code)
+
+| Escalation | Threshold | Source |
+|------------|-----------|--------|
+| Learner (`activate_learner`) | **3+ invalid queries within 10 minutes** per `user_id` + `server_key` | `LEARNER_THRESHOLD` in `src/agentic_layer/agents/query_validator.py` |
+| Human (`trigger_human`) | **5+ invalid queries within 15 minutes**, or high-severity validation concern | `HUMAN_THRESHOLD` in `query_validator.py`; decision in `rule_agent.py` |
+
+Additional signals (not separate thresholds):
 - Repeated use of the same unsupported modifier or parameter
 - High error rate on similar query structures
 
@@ -76,5 +82,5 @@ When the Rule Agent determines the situation requires human oversight (e.g., per
 
 ## 9. Open Questions
 
-- What is the exact threshold and time window for pattern detection?
-- Should the learner agent update global validation rules over time, or only provide per-user suggestions?
+- ~~What is the exact threshold and time window for pattern detection?~~ **Resolved:** 3+ / 10 min (learner), 5+ / 15 min (human); see [human-intervention-spec.md](human-intervention-spec.md) for human-tier alignment.
+- Should the learner agent update global validation rules over time, or only provide per-user suggestions? *(Current implementation: per-user guidance only.)*

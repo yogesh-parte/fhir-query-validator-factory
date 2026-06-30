@@ -275,8 +275,7 @@ These are **non-blocking** for the demo; they are production or documentation fo
 
 | Sev | Area | Item |
 |-----|------|------|
-| docs | `loop-engineering.md` | Still references 5-minute threshold; should be updated to match code (10 min / 15 min) |
-| docs | Demos / Makefile | `demo_loops.py` and notebook cover multi-server + mock.health; `Makefile` targets still stubs |
+| docs | Demos / Makefile | Notebook covers multi-server, mock.health, and human gate; CLI scripts HAPI-only; `Makefile` targets still stubs |
 | suggestion | Human gate | Notification is stdout-based; production needs email/ticket/dashboard integration |
 | suggestion | OAuth | Client credentials supported; authorization-code / PKCE / token rotation not implemented |
 | suggestion | Cache | In-memory only; Redis or distributed cache not wired |

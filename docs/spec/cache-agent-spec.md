@@ -34,8 +34,8 @@ The `CacheAgent` is responsible for efficiently managing `CapabilityStatement` r
 ## 5. Invalidation Strategy (Hybrid)
 
 1. **Primary**: Time-based TTL (default 7 days, configurable per server)
-2. **Secondary**: Conditional requests using ETag / Last-Modified
-3. **Force refresh**: Via configuration or admin signal
+2. **Secondary**: Conditional requests using ETag / `If-None-Match` (304 Not Modified) — **implemented** in `cache_agent.py`; `Last-Modified` / `If-Modified-Since` deferred
+3. **Force refresh**: Via configuration or admin signal (`FHIR_CACHE_INVALIDATE`, `FHIR_CACHE_INVALIDATE_KEYS`)
 
 ## 6. Acceptance Criteria
 

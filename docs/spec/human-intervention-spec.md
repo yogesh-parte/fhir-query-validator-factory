@@ -28,6 +28,20 @@ The Rule Agent may escalate to the Human Intervention Gate in the following situ
 | System confidence below threshold        | Ambiguous CapabilityStatement interpretation | Human validation of interpretation |
 | Persistent failure to improve            | User ignores suggestions repeatedly | Temporary restriction + human review |
 
+### Implementation mapping (current code)
+
+The following triggers are **implemented** in `src/agentic_layer/agents/rule_agent.py` and `query_validator.py`:
+
+| Trigger | Implemented | Notes |
+|---------|-------------|-------|
+| 5+ invalid queries in 15 minutes | Yes | `HUMAN_THRESHOLD` + `human_threshold_met` |
+| High-severity validation failures | Yes | Chained params touching sensitive markers (`patient.`, `subject.`, `individual.`) bypass learner tier |
+| Systematic probing / abuse heuristics | Partial | Pattern stats and error-type tracking; no dedicated abuse classifier |
+| Low confidence / ambiguous CapabilityStatement | No | Future — requires confidence scoring on interpretation |
+| Persistent failure to improve after learner | No | Future — requires learner outcome tracking |
+
+When human escalation fires, `HumanInterventionGate` pauses the user, emits a demo notification (stdout), and exposes decision options documented in §5.
+
 ## 4. Human Intervention Workflow
 
 1. **Detection**: Rule Agent identifies a condition requiring human review.

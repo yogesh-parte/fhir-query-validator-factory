@@ -14,9 +14,11 @@ One of the core ideas of the **Software Factory** approach is **loop engineering
 
 **Description:**
 - The `CacheAgent` fetches the `CapabilityStatement` and stores it with a timestamp.
-- On subsequent requests, it checks if the cache is still valid (TTL-based).
-- If expired, it refetches the statement.
-- Future enhancement: Use ETag / `If-Modified-Since` for conditional requests (currently simulated).
+- On subsequent requests, it checks if the cache is still valid (TTL-based, default 7 days).
+- Within TTL, it sends conditional requests using `If-None-Match` (ETag); a `304 Not Modified` response reuses the cached statement.
+- If TTL expires or the server returns new content, the cache is refreshed.
+- Auth-scoped cache keys prevent cross-tenant leakage (e.g. `mockhealth` with `MOCK_HEALTH_API_KEY`).
+- Future enhancement: `If-Modified-Since` / `Last-Modified` conditional requests.
 
 **Goal:** Reduce unnecessary network calls while keeping data reasonably fresh.
 
@@ -44,11 +46,11 @@ One of the core ideas of the **Software Factory** approach is **loop engineering
 **Description:**
 This is the most important loop for demonstrating intelligent behavior:
 
-1. `QueryValidatorAgent` tracks invalid queries per user.
-2. If repeated invalid patterns are detected (e.g., 3+ failures in 5 minutes), it sets `pattern_detected = True`.
+1. `QueryValidatorAgent` tracks invalid queries per user (keyed by `user_id` + `server_key`).
+2. If repeated invalid patterns are detected, it sets `pattern_detected = True` when the learner threshold is met.
 3. `RuleAgent` evaluates the situation and decides:
-   - **"learner"** → Activate `SearchLearnerAgent` to educate the user.
-   - **"human"** → Trigger `HumanInterventionGate` for review.
+   - **"learner"** → Activate `SearchLearnerAgent` when **3+ invalid queries within 10 minutes** (see `LEARNER_THRESHOLD` in `query_validator.py`).
+   - **"human"** → Trigger `HumanInterventionGate` when **5+ invalid queries within 15 minutes**, on **high-severity** validation concerns, or when abuse heuristics fire (see `HUMAN_THRESHOLD` in `query_validator.py` and `rule_agent.py`).
 4. The system either helps the user improve or escalates to a human.
 
 **Goal:** 
