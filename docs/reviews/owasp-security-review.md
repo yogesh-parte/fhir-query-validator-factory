@@ -6,6 +6,180 @@ Also see: [Traceability](../traceability.md) · [Configuration](../configuration
 
 ---
 
+## Pass 2 — 2026-06-30 post-hardening (`/python-owasp-reviewer`)
+
+| Field | Value |
+|-------|-------|
+| **Review timestamp** | `2026-06-30T09:30:00+05:30` (IST) / `2026-06-30T04:00:00Z` (UTC) |
+| **Reviewer** | Grok `/python-owasp-reviewer` (SAST + manual taint review) |
+| **Baseline** | Pass 1 findings; remediation in commit `41280a7` |
+| **Scope** | `src/agentic_layer/`, `scripts/`, `fhir_validator_agent/`, `pyproject.toml`, `.env.example`, `.github/workflows/security.yml`, `tests/unit/test_security_hardening.py` |
+| **Out of scope** | `node_modules/`, `examples/notebooks/`, third-party site content |
+| **Automated tools** | Bandit 1.9.4 (`src` + `scripts`, `-ll`); pattern grep; `pip-audit .` on pinned runtime deps |
+
+### Executive summary
+
+This is a **follow-up review after OWASP hardening** (commit `41280a7`). Pass 1 medium findings are **addressed with opt-in production controls** that preserve default demo behavior. `QueryExecutionAgent` now blocks absolute `query_url` values, enforces netloc matching, and disables redirect following. Human-gate operator auth, per-request workflow isolation, server-side `user_id` resolution, log redaction, pinned dependencies, CI security scanning, and an ADK Web threat model are all in place behind environment flags documented in `.env.example`.
+
+With **production flags enabled** (`FHIR_WORKFLOW_ISOLATE_STATE`, `FHIR_TRUST_CLIENT_USER_ID=false`, `FHIR_HUMAN_GATE_REQUIRE_AUTH`, `FHIR_VERBOSE_LOGGING=false`), risk posture is **suitable for guarded networked deployment** behind an API gateway. With **default demo flags** (all security env vars unset/false), three Pass 1 medium-class behaviors remain **intentionally** for local demos and escalation loop tests.
+
+Bandit: **0 High / 0 Medium** at `-ll`. `pip-audit .` on pinned direct runtime deps: **no known vulnerabilities**. Eleven security-hardening unit tests pass.
+
+| Severity | Count | Notes |
+|----------|-------|-------|
+| High | 0 | — |
+| Medium | 0 | When production env flags are set |
+| Medium (residual, demo default) | 3 | Auth off, singletons, trusted `user_id` — by design |
+| Low | 5 | Unchanged Bandit low findings |
+
+---
+
+### Pass 1 remediation status
+
+| Pass 1 finding | Status | Implementation |
+|----------------|--------|----------------|
+| A10 SSRF / unvalidated outbound HTTP | **Resolved** | `utils/url_safety.py` + `follow_redirects=False` in `query_execution.py:53` |
+| A01 Human gate review bypass | **Mitigated (opt-in)** | `auth/operator.py`; `FHIR_HUMAN_GATE_REQUIRE_AUTH` + `FHIR_HUMAN_GATE_OPERATOR_TOKEN` |
+| A01/A04 Spoofable `user_id` | **Mitigated (opt-in)** | `auth/identity.py`; `FHIR_TRUST_CLIENT_USER_ID=false` derives `token:{sha256}` |
+| A04 Shared singleton state | **Mitigated (opt-in)** | `WorkflowAgents` bundle; `FHIR_WORKFLOW_ISOLATE_STATE=true` |
+| A06 Unpinned dependencies | **Resolved** | Exact pins in `pyproject.toml`; `.github/workflows/security.yml` |
+| A02 Sensitive data in logs | **Mitigated (opt-in)** | `utils/logging_safe.py`; `FHIR_VERBOSE_LOGGING=false` |
+| A02 Partial API key in demos | **Resolved** | `demo_loops_mockhealth.py` prints `(set)` only |
+| A05 Env-driven cache invalidation | **Open (Low)** | Unchanged — acceptable for host-controlled deployment config |
+| A07 Unbound runtime bearer token | **Open (Low)** | Unchanged — acceptable for CLI/ADK demos; gateway should bind in prod |
+| A09 Audit context breadth | **Improved** | Human-gate audit redacted when verbose logging off |
+| B603 Subprocess in ADK demos | **Open (Low)** | Fixed args; scenario allowlist pattern in `_demo_utils.py` |
+| P3 ADK Web threat model | **Resolved** | Documented in `fhir_validator_agent/agent.py` |
+
+---
+
+### Findings summary (Pass 2)
+
+| Severity | OWASP / AST | Title | Location | Notes |
+|----------|-------------|-------|----------|-------|
+| Medium (residual) | A01 | Human gate auth disabled by default | `auth/operator.py:16` | Set `FHIR_HUMAN_GATE_REQUIRE_AUTH=true` before ADK Web / networked exposure |
+| Medium (residual) | A04 | Singleton workflow agents by default | `workflow_engine.py:70-79` | Set `FHIR_WORKFLOW_ISOLATE_STATE=true` for multi-tenant workers |
+| Medium (residual) | A01 / A04 | Client `user_id` trusted by default | `auth/identity.py:17` | Set `FHIR_TRUST_CLIENT_USER_ID=false` in production |
+| Low | A05 | Cache invalidation controlled by env vars only | `cache_agent.py:35-39` | Host-level control; no runtime admin API |
+| Low | A07 | Runtime `auth_token` accepted without identity binding | `workflow_state.py:18`, `settings.py:135-136` | Map to authenticated principal at API gateway |
+| Low | A09 | Full query text in audit when verbose logging on | `human_gate.py:87` | Default verbose=true for demos; disable in prod |
+| Low | A10 | CacheAgent metadata fetch follows redirects | `cache_agent.py:110` | URL is server-registry controlled, not user `query_url` — lower risk |
+| Low | B603 / AST03 | `subprocess` in ADK demo scripts | `scripts/demo_adk_cli.py`, `scripts/demo_adk_web.py` | Fixed command lists; no `shell=True` |
+| Low | A06 | Optional dependency extras use open ranges | `pyproject.toml:17-28` | `adk-cli`, `observability` extras unpinned — audit separately if installed |
+
+**None identified** at High severity.
+
+---
+
+### Detailed findings (residual / open)
+
+#### [A01] — Human gate auth off in default configuration (Medium — residual)
+
+- **Location:** `src/agentic_layer/auth/operator.py:14-32`
+- **Flaw:** `verify_human_gate_operator()` is a no-op unless `FHIR_HUMAN_GATE_REQUIRE_AUTH=true`. Demos and tests call `submit_review_decision()` without `operator_token`.
+- **Exploitation:** Only relevant when ADK Web or workflow APIs are network-exposed without the production flag set.
+- **Remediation:** Already implemented — enable before deployment:
+
+```bash
+FHIR_HUMAN_GATE_REQUIRE_AUTH=true
+FHIR_HUMAN_GATE_OPERATOR_TOKEN=<unguessable-secret>
+```
+
+Verified by `tests/unit/test_security_hardening.py` (`test_human_gate_auth_required_*`).
+
+---
+
+#### [A04] — Singleton agents in default configuration (Medium — residual)
+
+- **Location:** `src/agentic_layer/graph/workflow_engine.py:68-79`
+- **Flaw:** `get_workflow_agents(isolate=False)` shares pattern history, pause maps, and cache across requests unless isolation is enabled.
+- **Exploitation:** Multi-tenant ADK Web worker without `FHIR_WORKFLOW_ISOLATE_STATE=true` leaks cross-user escalation state.
+- **Remediation:** Already implemented:
+
+```bash
+FHIR_WORKFLOW_ISOLATE_STATE=true
+# or per-request: { "isolate_state": true, ... }
+```
+
+Verified by `test_isolated_workflows_do_not_share_pattern_history`.
+
+---
+
+#### [A01 / A04] — Trusted client `user_id` in default configuration (Medium — residual)
+
+- **Location:** `src/agentic_layer/auth/identity.py:14-36`
+- **Flaw:** `FHIR_TRUST_CLIENT_USER_ID` defaults to `true`; callers can supply arbitrary `user_id` for pattern history and pause checks.
+- **Remediation:** Already implemented for production:
+
+```bash
+FHIR_TRUST_CLIENT_USER_ID=false
+```
+
+Identity derived as `token:{sha256_prefix}` when `auth_token` present.
+
+---
+
+#### [A10] — CacheAgent redirect following (Low)
+
+- **Location:** `src/agentic_layer/agents/cache_agent.py:110`
+- **Flaw:** `httpx.Client` for `/metadata` does not set `follow_redirects=False`.
+- **Assessment:** `base_url` comes from the server registry (`settings.py`), not user `query_url`. Risk is substantially lower than Pass 1 execution-path finding. Optional hardening: add `follow_redirects=False` for consistency.
+
+---
+
+### Agentic / AST supplemental notes (Pass 2)
+
+| AST | Pass 1 | Pass 2 |
+|-----|--------|--------|
+| AST03 Over-privileged | Workflow forwards caller bearer tokens | Unchanged; gateway + `FHIR_TRUST_CLIENT_USER_ID=false` recommended |
+| AST05 External instructions | `.env.local` loading | Unchanged; git-ignored |
+| AST06 Weak isolation | Same-process singletons | **Improved** — `WorkflowAgents` + isolate flag |
+| AST09 No governance | Audit log only | Unchanged; threat model now in `agent.py` |
+
+---
+
+### Positive observations (Pass 2)
+
+- **SSRF class mitigated** — `build_fhir_target_url()` rejects `://`, validates netloc, execution uses `follow_redirects=False`.
+- **Defense in depth via env flags** — production hardening documented in `.env.example` without breaking demos.
+- **CI security pipeline** — `.github/workflows/security.yml` runs Bandit (`-ll`) and `pip-audit .`.
+- **Pinned runtime deps** — `httpx==0.28.1`, `authlib==1.7.2`, `google-adk==2.3.0`, `pydantic==2.13.4`, `python-dotenv==1.2.2`.
+- **Automated regression tests** — `tests/unit/test_security_hardening.py` (11 tests) covers URL rejection, operator auth, identity resolution, isolation.
+- **No SQL / injection surface** — grep clean for `eval`, `exec`, `os.system`, `pickle`, `yaml.load`, `shell=True`.
+- **Bandit** — 0 High / 0 Medium at `-ll`; 5 Low (subprocess demos + env var name heuristic).
+
+---
+
+### Dependency audit (`pip-audit`)
+
+`pip-audit .` against pinned `pyproject.toml` runtime dependencies (isolated install): **No known vulnerabilities found**.
+
+Optional extras (`adk-cli`, `observability`, `dev`) still use `>=` ranges — run `pip-audit` separately when those extras are installed in deployment images.
+
+---
+
+### Recommended next steps (Pass 2)
+
+| Priority | Action |
+|----------|--------|
+| P1 | Enable production env flags in any networked ADK Web / API deployment (see `.env.example`) |
+| P2 | Add `follow_redirects=False` to `CacheAgent._fetch_from_server` for consistency |
+| P2 | Commit a `uv.lock` / `requirements.lock` for fully reproducible transitive resolution |
+| P3 | Pin optional `adk-cli` and `observability` extras or document them as dev-only |
+| P3 | Add integration test that runs `make security` in CI (workflow already added) |
+
+---
+
+### Retest criteria (Pass 2)
+
+- [x] `query_url` with `://` rejected at execution boundary (`test_query_execution_rejects_absolute_query_url`)
+- [x] `submit_review_decision` raises `HumanGateAuthError` without operator credentials when auth enabled
+- [x] Isolated workflow runs do not share pattern history on same worker (`FHIR_WORKFLOW_ISOLATE_STATE=true`)
+- [x] `bandit -r src scripts -ll` → 0 Medium+ ; `pip-audit .` clean on pinned runtime deps
+- [x] No secret substrings in demo script output (`demo_loops_mockhealth.py` → `(set)`)
+
+---
+
 ## Pass 1 — 2026-06-30 (`/python-owasp-reviewer`)
 
 | Field | Value |
