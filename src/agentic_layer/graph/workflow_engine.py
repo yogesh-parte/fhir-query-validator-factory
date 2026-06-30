@@ -17,6 +17,7 @@ from ..agents import (
     QueryExecutionAgent,
     QueryValidatorAgent,
     RuleAgent,
+    QueryGeneratorAgent,
     SearchLearnerAgent,
 )
 from ..auth.identity import resolve_workflow_user_id
@@ -38,6 +39,7 @@ class WorkflowAgents:
     rule_agent: RuleAgent
     learner_agent: SearchLearnerAgent
     human_gate: HumanInterventionGate
+    query_generator: QueryGeneratorAgent
 
     def reset(self) -> None:
         """Clear in-memory agent state."""
@@ -62,6 +64,7 @@ def _build_agents() -> WorkflowAgents:
         rule_agent=RuleAgent(audit_log=audit_log),
         learner_agent=SearchLearnerAgent(),
         human_gate=HumanInterventionGate(audit_log=audit_log),
+        query_generator=QueryGeneratorAgent(),
     )
 
 
@@ -82,7 +85,7 @@ def get_workflow_agents(*, isolate: bool = False) -> WorkflowAgents:
 
 def _sync_module_exports(agents: WorkflowAgents) -> None:
     """Keep legacy module-level aliases pointed at the default singleton."""
-    global _audit_log, cache_agent, interpreter, validator, executor, rule_agent, learner_agent, human_gate
+    global _audit_log, cache_agent, interpreter, validator, executor, rule_agent, learner_agent, human_gate, query_generator
     _audit_log = agents.audit_log
     cache_agent = agents.cache_agent
     interpreter = agents.interpreter
@@ -91,6 +94,7 @@ def _sync_module_exports(agents: WorkflowAgents) -> None:
     rule_agent = agents.rule_agent
     learner_agent = agents.learner_agent
     human_gate = agents.human_gate
+    query_generator = agents.query_generator
 
 
 _default = get_workflow_agents()
@@ -100,6 +104,43 @@ _sync_module_exports(_default)
 def reset_singletons() -> None:
     """Clear module-level agent state between demos and tests."""
     get_workflow_agents().reset()
+
+
+def _maybe_generate_query(
+    state: ValidationWorkflowState,
+    agents: WorkflowAgents,
+) -> None:
+    """Populate query_url from query_generation when not provided."""
+    if state.query_url or not state.query_generation:
+        return
+
+    spec = state.query_generation
+    resource_type = spec.get("resource_type")
+    if not resource_type:
+        state.workflow_error = "query_generation requires resource_type when query_url is omitted."
+        return
+
+    intent = spec.get("intent")
+    if intent:
+        state.generated_query = agents.query_generator.generate_from_intent(
+            resource_type,
+            intent,
+        )
+    else:
+        state.generated_query = agents.query_generator.generate(
+            resource_type,
+            spec.get("criteria"),
+            count=spec.get("count"),
+            sort=spec.get("sort"),
+        )
+
+    if not state.generated_query.get("generated"):
+        errors = state.generated_query.get("errors", ["Query generation failed."])
+        state.workflow_error = "; ".join(errors)
+        return
+
+    state.query_url = state.generated_query["query_url"]
+    print(f"[QueryGenerator] Generated query_url: {state.query_url}")
 
 
 def build_final_output(state: ValidationWorkflowState) -> dict[str, Any]:
@@ -130,6 +171,19 @@ def execute_workflow(initial: dict[str, Any]) -> ValidationWorkflowState:
     agents = get_workflow_agents(isolate=isolate)
 
     state.user_id = resolve_workflow_user_id(state.user_id, state.auth_token)
+    _maybe_generate_query(state, agents)
+
+    if state.workflow_error and not state.query_url:
+        state.validation_result = {
+            "valid": False,
+            "errors": [state.workflow_error],
+            "warnings": state.generated_query.get("warnings", []) if state.generated_query else [],
+            "error_types": ["query_generation_failed"],
+            "pattern_detected": False,
+        }
+        state.execution_result = {"executed": False}
+        state.final_output = build_final_output(state)
+        return state
 
     if state.user_id and agents.human_gate.is_paused(state.user_id):
         state.workflow_error = f"User '{state.user_id}' is paused pending human review."

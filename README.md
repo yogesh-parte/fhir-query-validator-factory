@@ -27,6 +27,7 @@ All demos make **live HTTP requests** to FHIR servers.
 | `make demo-mockhealth` | Authenticated mock.health loops (needs `.env.local`) |
 | `make demo-adk-cli` | Google ADK CLI (`adk run`) scenarios |
 | `make demo-adk-web` | Google ADK Web UI + API |
+| `make demo-query-generator` | Generate FHIR query from standard search params, then validate |
 | `make test` | Full test suite |
 | `make security` | Bandit + pip-audit |
 
@@ -89,6 +90,7 @@ examples/notebooks/    Jupyter demo (demo_loops.ipynb)
 | Public test servers | [docs/public-test-servers.md](docs/public-test-servers.md) |
 | Agent specifications | [docs/spec/](docs/spec/) |
 | Planning roadmap | [planning/README.md](planning/README.md) |
+| Code documentation (Sphinx) | [doc/README.md](doc/README.md) — run `make docs` |
 
 ### Reviews
 

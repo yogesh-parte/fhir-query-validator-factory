@@ -5,6 +5,7 @@ from .query_execution import QueryExecutionAgent
 from .rule_agent import RuleAgent
 from .search_learner_agent import SearchLearnerAgent
 from .human_gate import HumanInterventionGate
+from .query_generator_agent import QueryGeneratorAgent
 
 __all__ = [
     "CacheAgent",
@@ -14,4 +15,5 @@ __all__ = [
     "RuleAgent",
     "SearchLearnerAgent",
     "HumanInterventionGate",
+    "QueryGeneratorAgent",
 ]

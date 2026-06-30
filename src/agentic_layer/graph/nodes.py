@@ -24,8 +24,8 @@ def _save_state(ctx: Context, state: ValidationWorkflowState) -> None:
 def initialize_workflow(ctx: Context) -> None:
     """Seed workflow state from incoming request fields."""
     state = _load_state(ctx)
-    if not state.query_url:
-        state.workflow_error = "query_url is required"
+    if not state.query_url and not state.query_generation:
+        state.workflow_error = "query_url or query_generation is required"
     _save_state(ctx, state)
 
 

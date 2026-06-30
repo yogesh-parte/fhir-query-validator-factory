@@ -1,0 +1,1006 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>agents package &mdash; FHIR Query Validator Factory</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="auth package" href="auth.html" />
+    <link rel="prev" title="agentic_layer package" href="agentic_layer.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            fhir-query-validator-factory
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#goals">Goals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#core-principles">Core principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#technology-stack">Technology stack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#repository-layout">Repository layout</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#install-dependencies">Install dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#optional-extras">Optional extras</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#secrets-and-configuration">Secrets and configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#run-a-demo">Run a demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#generate-a-query-then-validate">Generate a query then validate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#adk-entry-point">ADK entry point</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#build-code-documentation">Build code documentation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture.html#high-level-flow">High-level flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture.html#specialist-agents">Specialist agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture.html#adk-graph-wrapper">ADK graph wrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture.html#state-model">State model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture.html#further-reading">Further reading</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow Engine</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../workflow.html#execution-order">Execution order</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../workflow.html#workflow-modes">Workflow modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../workflow.html#output-contract">Output contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../workflow.html#agent-bundles-and-isolation">Agent bundles and isolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../workflow.html#escalation-thresholds">Escalation thresholds</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../agents.html">Agents</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#cacheagent">CacheAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#capabilityinterpreteragent">CapabilityInterpreterAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#queryvalidatoragent">QueryValidatorAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#queryexecutionagent">QueryExecutionAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#ruleagent">RuleAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#searchlearneragent">SearchLearnerAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#humaninterventiongate">HumanInterventionGate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#querygeneratoragent">QueryGeneratorAgent</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../query_generator.html">Query Generator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../query_generator.html#data-source">Data source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../query_generator.html#supported-resource-types-bundled">Supported resource types (bundled)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../query_generator.html#api-overview">API overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../query_generator.html#workflow-integration">Workflow integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../query_generator.html#demo">Demo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../security.html#hardening-controls">Hardening controls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security.html#adk-web-threat-model">ADK Web threat model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security.html#automated-scanning">Automated scanning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security.html#review-artifacts">Review artifacts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../demos.html">Demo Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../demos.html#makefile-targets">Makefile targets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../demos.html#singleton-reset">Singleton reset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../testing.html#test-layout">Test layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testing.html#run-tests">Run tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testing.html#coverage">Coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testing.html#security-tests">Security tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testing.html#ci">CI</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#package-overview">Package overview</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="agentic_layer.html">agentic_layer package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">agents package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#src.agentic_layer.agents.CacheAgent"><code class="docutils literal notranslate"><span class="pre">CacheAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.agentic_layer.agents.CapabilityInterpreterAgent"><code class="docutils literal notranslate"><span class="pre">CapabilityInterpreterAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.agentic_layer.agents.QueryValidatorAgent"><code class="docutils literal notranslate"><span class="pre">QueryValidatorAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.agentic_layer.agents.QueryExecutionAgent"><code class="docutils literal notranslate"><span class="pre">QueryExecutionAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.agentic_layer.agents.RuleAgent"><code class="docutils literal notranslate"><span class="pre">RuleAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.agentic_layer.agents.SearchLearnerAgent"><code class="docutils literal notranslate"><span class="pre">SearchLearnerAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.agentic_layer.agents.HumanInterventionGate"><code class="docutils literal notranslate"><span class="pre">HumanInterventionGate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#src.agentic_layer.agents.QueryGeneratorAgent"><code class="docutils literal notranslate"><span class="pre">QueryGeneratorAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.agentic_layer.agents.cache_agent">CacheAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.agentic_layer.agents.capability_interpreter">CapabilityInterpreterAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.agentic_layer.agents.query_validator">QueryValidatorAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.agentic_layer.agents.query_execution">QueryExecutionAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.agentic_layer.agents.rule_agent">RuleAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.agentic_layer.agents.search_learner_agent">SearchLearnerAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.agentic_layer.agents.human_gate">HumanInterventionGate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.agentic_layer.agents.query_generator_agent">QueryGeneratorAgent</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="auth.html">auth package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#src.agentic_layer.auth.AuthProvider"><code class="docutils literal notranslate"><span class="pre">AuthProvider</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#src.agentic_layer.auth.BearerTokenProvider"><code class="docutils literal notranslate"><span class="pre">BearerTokenProvider</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#src.agentic_layer.auth.OAuth2ClientCredentialsProvider"><code class="docutils literal notranslate"><span class="pre">OAuth2ClientCredentialsProvider</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#src.agentic_layer.auth.build_auth_provider"><code class="docutils literal notranslate"><span class="pre">build_auth_provider()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#src.agentic_layer.auth.resolve_auth_headers"><code class="docutils literal notranslate"><span class="pre">resolve_auth_headers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#module-src.agentic_layer.auth.provider">provider</a></li>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#module-src.agentic_layer.auth.identity">identity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#module-src.agentic_layer.auth.operator">operator</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="config.html">config package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="config.html#src.agentic_layer.config.get_settings"><code class="docutils literal notranslate"><span class="pre">get_settings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#src.agentic_layer.config.ServerConfig"><code class="docutils literal notranslate"><span class="pre">ServerConfig</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#module-src.agentic_layer.config.settings">settings</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="graph.html">graph package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="graph.html#module-src.agentic_layer.graph.validation_workflow">validation_workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="graph.html#module-src.agentic_layer.graph.workflow_engine">workflow_engine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="graph.html#module-src.agentic_layer.graph.nodes">nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="state.html">state package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="state.html#module-src.agentic_layer.state.workflow_state">workflow_state</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils.html#module-src.agentic_layer.utils.audit_log">audit_log</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils.html#module-src.agentic_layer.utils.query_parser">query_parser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils.html#module-src.agentic_layer.utils.url_safety">url_safety</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils.html#module-src.agentic_layer.utils.logging_safe">logging_safe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils.html#module-src.agentic_layer.utils.fhir_resource_registry">fhir_resource_registry</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="exceptions.html">exceptions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="exceptions.html#src.agentic_layer.exceptions.FhirValidatorError"><code class="docutils literal notranslate"><span class="pre">FhirValidatorError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="exceptions.html#src.agentic_layer.exceptions.UnknownServerKeyError"><code class="docutils literal notranslate"><span class="pre">UnknownServerKeyError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="exceptions.html#src.agentic_layer.exceptions.AuthenticationRequiredError"><code class="docutils literal notranslate"><span class="pre">AuthenticationRequiredError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="exceptions.html#src.agentic_layer.exceptions.CapabilityFetchError"><code class="docutils literal notranslate"><span class="pre">CapabilityFetchError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fhir_validator_agent.html">fhir_validator_agent package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="fhir_validator_agent.html#threat-model-adk-web-networked-exposure">Threat model (ADK Web / networked exposure)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Related Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external_docs.html">Repository Markdown Guides</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fhir-query-validator-factory</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">agents package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/agents.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-src.agentic_layer.agents">
+<span id="agents-package"></span><h1>agents package<a class="headerlink" href="#module-src.agentic_layer.agents" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.CacheAgent">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.</span></span><span class="sig-name descname"><span class="pre">CacheAgent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ttl_seconds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">604800</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/cache_agent.html#CacheAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.CacheAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Specialist agent responsible for CapabilityStatement caching.
+Supports TTL-based and conditional (ETag) invalidation with auth-aware keys.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ttl_seconds</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.CacheAgent.get_capability_statement">
+<span class="sig-name descname"><span class="pre">get_capability_statement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/cache_agent.html#CacheAgent.get_capability_statement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.CacheAgent.get_capability_statement" title="Link to this definition"></a></dt>
+<dd><p>Get CapabilityStatement. Uses cache if valid, otherwise fetches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>server_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>auth_token</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.CacheAgent.invalidate">
+<span class="sig-name descname"><span class="pre">invalidate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/cache_agent.html#CacheAgent.invalidate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.CacheAgent.invalidate" title="Link to this definition"></a></dt>
+<dd><p>Force invalidation of cache for a server (auth-scoped when provided).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>server_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>auth_token</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.CapabilityInterpreterAgent">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.</span></span><span class="sig-name descname"><span class="pre">CapabilityInterpreterAgent</span></span><a class="reference internal" href="../_modules/src/agentic_layer/agents/capability_interpreter.html#CapabilityInterpreterAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.CapabilityInterpreterAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Specialist agent that extracts usable information from CapabilityStatement.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.CapabilityInterpreterAgent.interpret">
+<span class="sig-name descname"><span class="pre">interpret</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">capability_statement</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/capability_interpreter.html#CapabilityInterpreterAgent.interpret"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.CapabilityInterpreterAgent.interpret" title="Link to this definition"></a></dt>
+<dd><p>Extract supported resources, search parameters, modifiers, and comparators.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>capability_statement</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.QueryValidatorAgent">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.</span></span><span class="sig-name descname"><span class="pre">QueryValidatorAgent</span></span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_validator.html#QueryValidatorAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.QueryValidatorAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Validates queries and tracks repeated invalid patterns per user and server.</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.QueryValidatorAgent.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpreted_capability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_validator.html#QueryValidatorAgent.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.QueryValidatorAgent.validate" title="Link to this definition"></a></dt>
+<dd><p>Validate the query and detect patterns when user_id is provided.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>interpreted_capability</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+<li><p><strong>user_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>server_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.QueryValidatorAgent.get_pattern_stats">
+<span class="sig-name descname"><span class="pre">get_pattern_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_validator.html#QueryValidatorAgent.get_pattern_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.QueryValidatorAgent.get_pattern_stats" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>server_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.QueryExecutionAgent">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.</span></span><span class="sig-name descname"><span class="pre">QueryExecutionAgent</span></span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_execution.html#QueryExecutionAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.QueryExecutionAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Executes FHIR queries after successful validation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.QueryExecutionAgent.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_execution.html#QueryExecutionAgent.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.QueryExecutionAgent.execute" title="Link to this definition"></a></dt>
+<dd><p>Execute the query against the FHIR server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>server_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>auth_token</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.RuleAgent">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.</span></span><span class="sig-name descname"><span class="pre">RuleAgent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audit_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/rule_agent.html#RuleAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.RuleAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Decides whether to activate Search Learner or trigger Human Intervention.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>audit_log</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="utils.html#src.agentic_layer.utils.audit_log.AuditLog" title="src.agentic_layer.utils.audit_log.AuditLog"><em>AuditLog</em></a><em>]</em>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.RuleAgent.decide_escalation">
+<span class="sig-name descname"><span class="pre">decide_escalation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern_detected</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_result</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/rule_agent.html#RuleAgent.decide_escalation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.RuleAgent.decide_escalation" title="Link to this definition"></a></dt>
+<dd><p>Returns (decision, audit_record) where decision is
+‘learner’, ‘human’, or ‘none’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pattern_detected</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>validation_result</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+<li><p><strong>user_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>server_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.SearchLearnerAgent">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.</span></span><span class="sig-name descname"><span class="pre">SearchLearnerAgent</span></span><a class="reference internal" href="../_modules/src/agentic_layer/agents/search_learner_agent.html#SearchLearnerAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.SearchLearnerAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Educates the user and suggests improvements based on CapabilityStatement data.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.SearchLearnerAgent.provide_guidance">
+<span class="sig-name descname"><span class="pre">provide_guidance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpreted_capability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/search_learner_agent.html#SearchLearnerAgent.provide_guidance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.SearchLearnerAgent.provide_guidance" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>validation_result</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+<li><p><strong>interpreted_capability</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.HumanInterventionGate">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.</span></span><span class="sig-name descname"><span class="pre">HumanInterventionGate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audit_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/human_gate.html#HumanInterventionGate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.HumanInterventionGate" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Pause/notify/review/resume workflow for human oversight with audit records.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>audit_log</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="utils.html#src.agentic_layer.utils.audit_log.AuditLog" title="src.agentic_layer.utils.audit_log.AuditLog"><em>AuditLog</em></a><em>]</em>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.HumanInterventionGate.classify_severity">
+<span class="sig-name descname"><span class="pre">classify_severity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validation_result</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/human_gate.html#HumanInterventionGate.classify_severity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.HumanInterventionGate.classify_severity" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>validation_result</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#src.agentic_layer.agents.human_gate.InterventionSeverity" title="src.agentic_layer.agents.human_gate.InterventionSeverity"><em>InterventionSeverity</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.HumanInterventionGate.request_human_review">
+<span class="sig-name descname"><span class="pre">request_human_review</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/human_gate.html#HumanInterventionGate.request_human_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.HumanInterventionGate.request_human_review" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>context</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.HumanInterventionGate.submit_review_decision">
+<span class="sig-name descname"><span class="pre">submit_review_decision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">review_id</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">reviewer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decision</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rationale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/human_gate.html#HumanInterventionGate.submit_review_decision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.HumanInterventionGate.submit_review_decision" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>review_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>reviewer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>decision</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>rationale</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>operator_token</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.HumanInterventionGate.is_paused">
+<span class="sig-name descname"><span class="pre">is_paused</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/human_gate.html#HumanInterventionGate.is_paused"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.HumanInterventionGate.is_paused" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.QueryGeneratorAgent">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.</span></span><span class="sig-name descname"><span class="pre">QueryGeneratorAgent</span></span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_generator_agent.html#QueryGeneratorAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.QueryGeneratorAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Generates FHIR search queries using standard parameters from build.fhir.org.</p>
+<p>Reference data: src/agentic_layer/data/fhir_standard_search_params.json</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.QueryGeneratorAgent.list_resources">
+<span class="sig-name descname"><span class="pre">list_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_generator_agent.html#QueryGeneratorAgent.list_resources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.QueryGeneratorAgent.list_resources" title="Link to this definition"></a></dt>
+<dd><p>Return known resource types and registry metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.QueryGeneratorAgent.describe_resource">
+<span class="sig-name descname"><span class="pre">describe_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_generator_agent.html#QueryGeneratorAgent.describe_resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.QueryGeneratorAgent.describe_resource" title="Link to this definition"></a></dt>
+<dd><p>Return standard search parameters for a FHIR resource type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>resource_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.QueryGeneratorAgent.generate">
+<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpreted_capability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_generator_agent.html#QueryGeneratorAgent.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.QueryGeneratorAgent.generate" title="Link to this definition"></a></dt>
+<dd><p>Generate a relative FHIR search query URL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resource_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – FHIR resource (e.g. Patient, Observation).</p></li>
+<li><p><strong>criteria</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>] </em><em>| </em><em>None</em>) – Mapping of search parameter name → value. Values may be
+strings or {“comparator”: “ge”, “value”: “1990-01-01”} for dates.</p></li>
+<li><p><strong>count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><em>None</em>) – Optional _count paging parameter.</p></li>
+<li><p><strong>sort</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – Optional _sort parameter.</p></li>
+<li><p><strong>interpreted_capability</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>] </em><em>| </em><em>None</em>) – When provided, flag criteria not declared on
+the target server’s CapabilityStatement.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.QueryGeneratorAgent.generate_from_intent">
+<span class="sig-name descname"><span class="pre">generate_from_intent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intent</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpreted_capability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_generator_agent.html#QueryGeneratorAgent.generate_from_intent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.QueryGeneratorAgent.generate_from_intent" title="Link to this definition"></a></dt>
+<dd><p>Generate a query from a short intent phrase using built-in templates.</p>
+<p class="rubric">Examples</p>
+<p>intent=”male patients” → Patient?gender=male
+intent=”final observations” → Observation?status=final</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resource_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>intent</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>interpreted_capability</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<section id="module-src.agentic_layer.agents.cache_agent">
+<span id="cacheagent"></span><h2>CacheAgent<a class="headerlink" href="#module-src.agentic_layer.agents.cache_agent" title="Link to this heading"></a></h2>
+<p>CacheAgent
+Handles fetching and caching of CapabilityStatement with hybrid invalidation.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.cache_agent.CacheAgent">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.cache_agent.</span></span><span class="sig-name descname"><span class="pre">CacheAgent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ttl_seconds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">604800</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/cache_agent.html#CacheAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.cache_agent.CacheAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Specialist agent responsible for CapabilityStatement caching.
+Supports TTL-based and conditional (ETag) invalidation with auth-aware keys.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ttl_seconds</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.cache_agent.CacheAgent.get_capability_statement">
+<span class="sig-name descname"><span class="pre">get_capability_statement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/cache_agent.html#CacheAgent.get_capability_statement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.cache_agent.CacheAgent.get_capability_statement" title="Link to this definition"></a></dt>
+<dd><p>Get CapabilityStatement. Uses cache if valid, otherwise fetches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>server_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>auth_token</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.cache_agent.CacheAgent.invalidate">
+<span class="sig-name descname"><span class="pre">invalidate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/cache_agent.html#CacheAgent.invalidate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.cache_agent.CacheAgent.invalidate" title="Link to this definition"></a></dt>
+<dd><p>Force invalidation of cache for a server (auth-scoped when provided).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>server_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>auth_token</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.agentic_layer.agents.capability_interpreter">
+<span id="capabilityinterpreteragent"></span><h2>CapabilityInterpreterAgent<a class="headerlink" href="#module-src.agentic_layer.agents.capability_interpreter" title="Link to this heading"></a></h2>
+<p>CapabilityInterpreterAgent
+Dynamically interprets CapabilityStatement to support generalized validation.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.capability_interpreter.CapabilityInterpreterAgent">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.capability_interpreter.</span></span><span class="sig-name descname"><span class="pre">CapabilityInterpreterAgent</span></span><a class="reference internal" href="../_modules/src/agentic_layer/agents/capability_interpreter.html#CapabilityInterpreterAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.capability_interpreter.CapabilityInterpreterAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Specialist agent that extracts usable information from CapabilityStatement.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.capability_interpreter.CapabilityInterpreterAgent.interpret">
+<span class="sig-name descname"><span class="pre">interpret</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">capability_statement</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/capability_interpreter.html#CapabilityInterpreterAgent.interpret"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.capability_interpreter.CapabilityInterpreterAgent.interpret" title="Link to this definition"></a></dt>
+<dd><p>Extract supported resources, search parameters, modifiers, and comparators.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>capability_statement</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.agentic_layer.agents.query_validator">
+<span id="queryvalidatoragent"></span><h2>QueryValidatorAgent<a class="headerlink" href="#module-src.agentic_layer.agents.query_validator" title="Link to this heading"></a></h2>
+<p>QueryValidatorAgent
+Validates FHIR search queries against interpreted CapabilityStatement.
+Includes pattern detection for repeated invalid queries.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.query_validator.QueryValidatorAgent">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.query_validator.</span></span><span class="sig-name descname"><span class="pre">QueryValidatorAgent</span></span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_validator.html#QueryValidatorAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.query_validator.QueryValidatorAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Validates queries and tracks repeated invalid patterns per user and server.</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.query_validator.QueryValidatorAgent.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpreted_capability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_validator.html#QueryValidatorAgent.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.query_validator.QueryValidatorAgent.validate" title="Link to this definition"></a></dt>
+<dd><p>Validate the query and detect patterns when user_id is provided.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>interpreted_capability</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+<li><p><strong>user_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>server_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.query_validator.QueryValidatorAgent.get_pattern_stats">
+<span class="sig-name descname"><span class="pre">get_pattern_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_validator.html#QueryValidatorAgent.get_pattern_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.query_validator.QueryValidatorAgent.get_pattern_stats" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>server_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.agentic_layer.agents.query_execution">
+<span id="queryexecutionagent"></span><h2>QueryExecutionAgent<a class="headerlink" href="#module-src.agentic_layer.agents.query_execution" title="Link to this heading"></a></h2>
+<p>QueryExecutionAgent
+Executes validated FHIR search queries.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.query_execution.QueryExecutionAgent">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.query_execution.</span></span><span class="sig-name descname"><span class="pre">QueryExecutionAgent</span></span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_execution.html#QueryExecutionAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.query_execution.QueryExecutionAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Executes FHIR queries after successful validation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.query_execution.QueryExecutionAgent.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_execution.html#QueryExecutionAgent.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.query_execution.QueryExecutionAgent.execute" title="Link to this definition"></a></dt>
+<dd><p>Execute the query against the FHIR server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>server_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>auth_token</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.agentic_layer.agents.rule_agent">
+<span id="ruleagent"></span><h2>RuleAgent<a class="headerlink" href="#module-src.agentic_layer.agents.rule_agent" title="Link to this heading"></a></h2>
+<p>RuleAgent
+Evaluates pattern detection signals and decides escalation path.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.rule_agent.RuleAgent">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.rule_agent.</span></span><span class="sig-name descname"><span class="pre">RuleAgent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audit_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/rule_agent.html#RuleAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.rule_agent.RuleAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Decides whether to activate Search Learner or trigger Human Intervention.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>audit_log</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="utils.html#src.agentic_layer.utils.audit_log.AuditLog" title="src.agentic_layer.utils.audit_log.AuditLog"><em>AuditLog</em></a><em>]</em>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.rule_agent.RuleAgent.decide_escalation">
+<span class="sig-name descname"><span class="pre">decide_escalation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern_detected</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_result</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/rule_agent.html#RuleAgent.decide_escalation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.rule_agent.RuleAgent.decide_escalation" title="Link to this definition"></a></dt>
+<dd><p>Returns (decision, audit_record) where decision is
+‘learner’, ‘human’, or ‘none’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pattern_detected</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>validation_result</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+<li><p><strong>user_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>server_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.agentic_layer.agents.search_learner_agent">
+<span id="searchlearneragent"></span><h2>SearchLearnerAgent<a class="headerlink" href="#module-src.agentic_layer.agents.search_learner_agent" title="Link to this heading"></a></h2>
+<p>SearchLearnerAgent
+Provides helpful explanations and suggestions when repeated invalid queries are detected.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.search_learner_agent.SearchLearnerAgent">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.search_learner_agent.</span></span><span class="sig-name descname"><span class="pre">SearchLearnerAgent</span></span><a class="reference internal" href="../_modules/src/agentic_layer/agents/search_learner_agent.html#SearchLearnerAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.search_learner_agent.SearchLearnerAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Educates the user and suggests improvements based on CapabilityStatement data.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.search_learner_agent.SearchLearnerAgent.provide_guidance">
+<span class="sig-name descname"><span class="pre">provide_guidance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpreted_capability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/search_learner_agent.html#SearchLearnerAgent.provide_guidance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.search_learner_agent.SearchLearnerAgent.provide_guidance" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>validation_result</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+<li><p><strong>interpreted_capability</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.agentic_layer.agents.human_gate">
+<span id="humaninterventiongate"></span><h2>HumanInterventionGate<a class="headerlink" href="#module-src.agentic_layer.agents.human_gate" title="Link to this heading"></a></h2>
+<p>HumanInterventionGate
+Handles escalation to human review when needed.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.human_gate.InterventionSeverity">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.human_gate.</span></span><span class="sig-name descname"><span class="pre">InterventionSeverity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/human_gate.html#InterventionSeverity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.human_gate.InterventionSeverity" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.human_gate.InterventionSeverity.LOW">
+<span class="sig-name descname"><span class="pre">LOW</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'low'</span></span><a class="headerlink" href="#src.agentic_layer.agents.human_gate.InterventionSeverity.LOW" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.human_gate.InterventionSeverity.MEDIUM">
+<span class="sig-name descname"><span class="pre">MEDIUM</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'medium'</span></span><a class="headerlink" href="#src.agentic_layer.agents.human_gate.InterventionSeverity.MEDIUM" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.human_gate.InterventionSeverity.HIGH">
+<span class="sig-name descname"><span class="pre">HIGH</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'high'</span></span><a class="headerlink" href="#src.agentic_layer.agents.human_gate.InterventionSeverity.HIGH" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.human_gate.InterventionSeverity.CRITICAL">
+<span class="sig-name descname"><span class="pre">CRITICAL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'critical'</span></span><a class="headerlink" href="#src.agentic_layer.agents.human_gate.InterventionSeverity.CRITICAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.human_gate.HumanInterventionGate">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.human_gate.</span></span><span class="sig-name descname"><span class="pre">HumanInterventionGate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audit_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/human_gate.html#HumanInterventionGate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.human_gate.HumanInterventionGate" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Pause/notify/review/resume workflow for human oversight with audit records.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>audit_log</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="utils.html#src.agentic_layer.utils.audit_log.AuditLog" title="src.agentic_layer.utils.audit_log.AuditLog"><em>AuditLog</em></a><em>]</em>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.human_gate.HumanInterventionGate.classify_severity">
+<span class="sig-name descname"><span class="pre">classify_severity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validation_result</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/human_gate.html#HumanInterventionGate.classify_severity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.human_gate.HumanInterventionGate.classify_severity" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>validation_result</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#src.agentic_layer.agents.human_gate.InterventionSeverity" title="src.agentic_layer.agents.human_gate.InterventionSeverity"><em>InterventionSeverity</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.human_gate.HumanInterventionGate.request_human_review">
+<span class="sig-name descname"><span class="pre">request_human_review</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/human_gate.html#HumanInterventionGate.request_human_review"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.human_gate.HumanInterventionGate.request_human_review" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>context</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.human_gate.HumanInterventionGate.submit_review_decision">
+<span class="sig-name descname"><span class="pre">submit_review_decision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">review_id</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">reviewer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decision</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rationale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/human_gate.html#HumanInterventionGate.submit_review_decision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.human_gate.HumanInterventionGate.submit_review_decision" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>review_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>reviewer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>decision</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>rationale</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>operator_token</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.human_gate.HumanInterventionGate.is_paused">
+<span class="sig-name descname"><span class="pre">is_paused</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/human_gate.html#HumanInterventionGate.is_paused"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.human_gate.HumanInterventionGate.is_paused" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.agentic_layer.agents.query_generator_agent">
+<span id="querygeneratoragent"></span><h2>QueryGeneratorAgent<a class="headerlink" href="#module-src.agentic_layer.agents.query_generator_agent" title="Link to this heading"></a></h2>
+<p>QueryGeneratorAgent
+Builds FHIR REST search query URLs from standard resource search parameters.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.agents.query_generator_agent.</span></span><span class="sig-name descname"><span class="pre">QueryGeneratorAgent</span></span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_generator_agent.html#QueryGeneratorAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Generates FHIR search queries using standard parameters from build.fhir.org.</p>
+<p>Reference data: src/agentic_layer/data/fhir_standard_search_params.json</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent.list_resources">
+<span class="sig-name descname"><span class="pre">list_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_generator_agent.html#QueryGeneratorAgent.list_resources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent.list_resources" title="Link to this definition"></a></dt>
+<dd><p>Return known resource types and registry metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent.describe_resource">
+<span class="sig-name descname"><span class="pre">describe_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_generator_agent.html#QueryGeneratorAgent.describe_resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent.describe_resource" title="Link to this definition"></a></dt>
+<dd><p>Return standard search parameters for a FHIR resource type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>resource_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent.generate">
+<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criteria</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpreted_capability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_generator_agent.html#QueryGeneratorAgent.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent.generate" title="Link to this definition"></a></dt>
+<dd><p>Generate a relative FHIR search query URL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resource_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – FHIR resource (e.g. Patient, Observation).</p></li>
+<li><p><strong>criteria</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>] </em><em>| </em><em>None</em>) – Mapping of search parameter name → value. Values may be
+strings or {“comparator”: “ge”, “value”: “1990-01-01”} for dates.</p></li>
+<li><p><strong>count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><em>None</em>) – Optional _count paging parameter.</p></li>
+<li><p><strong>sort</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – Optional _sort parameter.</p></li>
+<li><p><strong>interpreted_capability</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>] </em><em>| </em><em>None</em>) – When provided, flag criteria not declared on
+the target server’s CapabilityStatement.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent.generate_from_intent">
+<span class="sig-name descname"><span class="pre">generate_from_intent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intent</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpreted_capability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/agents/query_generator_agent.html#QueryGeneratorAgent.generate_from_intent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent.generate_from_intent" title="Link to this definition"></a></dt>
+<dd><p>Generate a query from a short intent phrase using built-in templates.</p>
+<p class="rubric">Examples</p>
+<p>intent=”male patients” → Patient?gender=male
+intent=”final observations” → Observation?status=final</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resource_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>intent</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>interpreted_capability</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="agentic_layer.html" class="btn btn-neutral float-left" title="agentic_layer package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="auth.html" class="btn btn-neutral float-right" title="auth package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Yogesh.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -50,7 +50,18 @@ def test_initialize_workflow_requires_query_url():
 
     asyncio.run(_run_node(initialize_workflow, ctx))
 
-    assert ctx.state["workflow_error"] == "query_url is required"
+    assert ctx.state["workflow_error"] == "query_url or query_generation is required"
+
+
+def test_initialize_workflow_accepts_query_generation():
+    ctx = _ctx({
+        "query_generation": {"resource_type": "Patient", "intent": "male patients"},
+        "server_key": "hapi",
+    })
+
+    asyncio.run(_run_node(initialize_workflow, ctx))
+
+    assert not ctx.state.get("workflow_error")
 
 
 def test_initialize_workflow_accepts_valid_request():

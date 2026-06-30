@@ -90,6 +90,33 @@ def test_build_final_output_omits_results_when_execution_not_successful():
 
 
 @patch("src.agentic_layer.graph.workflow_engine.cache_agent.get_capability_statement")
+def test_execute_workflow_generates_query_from_spec(mock_get_capability):
+    mock_get_capability.return_value = {
+        "resourceType": "CapabilityStatement",
+        "rest": [{
+            "resource": [{
+                "type": "Patient",
+                "searchParam": [{"name": "gender", "type": "token"}],
+            }],
+        }],
+    }
+
+    state = execute_workflow({
+        "query_generation": {
+            "resource_type": "Patient",
+            "criteria": {"gender": "male"},
+            "count": 3,
+        },
+        "server_key": "hapi",
+        "mode": "validate_only",
+    })
+
+    assert state.generated_query["generated"] is True
+    assert state.query_url == "Patient?gender=male&_count=3"
+    assert state.validation_result["valid"] is True
+
+
+@patch("src.agentic_layer.graph.workflow_engine.cache_agent.get_capability_statement")
 def test_execute_workflow_validate_only_success(mock_get_capability):
     mock_get_capability.return_value = PATIENT_CAPABILITY
 

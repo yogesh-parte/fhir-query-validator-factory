@@ -13,6 +13,8 @@ class ValidationWorkflowState(BaseModel):
     """Shared workflow state passed through ADK graph nodes."""
 
     query_url: str = ""
+    query_generation: dict[str, Any] = Field(default_factory=dict)
+    generated_query: dict[str, Any] = Field(default_factory=dict)
     server_key: str = "hapi"
     user_id: Optional[str] = None
     auth_token: Optional[str] = None

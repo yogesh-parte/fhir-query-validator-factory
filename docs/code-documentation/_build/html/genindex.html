@@ -1,0 +1,1146 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Index &mdash; FHIR Query Validator Factory</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            fhir-query-validator-factory
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#goals">Goals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#core-principles">Core principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#technology-stack">Technology stack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#repository-layout">Repository layout</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-dependencies">Install dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#optional-extras">Optional extras</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#secrets-and-configuration">Secrets and configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#run-a-demo">Run a demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#generate-a-query-then-validate">Generate a query then validate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#adk-entry-point">ADK entry point</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#build-code-documentation">Build code documentation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#high-level-flow">High-level flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#specialist-agents">Specialist agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#adk-graph-wrapper">ADK graph wrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#state-model">State model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#further-reading">Further reading</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html">Workflow Engine</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="workflow.html#execution-order">Execution order</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflow.html#workflow-modes">Workflow modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflow.html#output-contract">Output contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflow.html#agent-bundles-and-isolation">Agent bundles and isolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflow.html#escalation-thresholds">Escalation thresholds</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="agents.html">Agents</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="agents.html#cacheagent">CacheAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agents.html#capabilityinterpreteragent">CapabilityInterpreterAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agents.html#queryvalidatoragent">QueryValidatorAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agents.html#queryexecutionagent">QueryExecutionAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agents.html#ruleagent">RuleAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agents.html#searchlearneragent">SearchLearnerAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agents.html#humaninterventiongate">HumanInterventionGate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="agents.html#querygeneratoragent">QueryGeneratorAgent</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="query_generator.html">Query Generator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="query_generator.html#data-source">Data source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="query_generator.html#supported-resource-types-bundled">Supported resource types (bundled)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="query_generator.html#api-overview">API overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="query_generator.html#workflow-integration">Workflow integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="query_generator.html#demo">Demo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="security.html#hardening-controls">Hardening controls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="security.html#adk-web-threat-model">ADK Web threat model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="security.html#automated-scanning">Automated scanning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="security.html#review-artifacts">Review artifacts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="demos.html">Demo Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="demos.html#makefile-targets">Makefile targets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demos.html#singleton-reset">Singleton reset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="testing.html#test-layout">Test layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html#run-tests">Run tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html#coverage">Coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html#security-tests">Security tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html#ci">CI</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html#package-overview">Package overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/agentic_layer.html">agentic_layer package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/agents.html">agents package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#src.agentic_layer.agents.CacheAgent"><code class="docutils literal notranslate"><span class="pre">CacheAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#src.agentic_layer.agents.CapabilityInterpreterAgent"><code class="docutils literal notranslate"><span class="pre">CapabilityInterpreterAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#src.agentic_layer.agents.QueryValidatorAgent"><code class="docutils literal notranslate"><span class="pre">QueryValidatorAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#src.agentic_layer.agents.QueryExecutionAgent"><code class="docutils literal notranslate"><span class="pre">QueryExecutionAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#src.agentic_layer.agents.RuleAgent"><code class="docutils literal notranslate"><span class="pre">RuleAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#src.agentic_layer.agents.SearchLearnerAgent"><code class="docutils literal notranslate"><span class="pre">SearchLearnerAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#src.agentic_layer.agents.HumanInterventionGate"><code class="docutils literal notranslate"><span class="pre">HumanInterventionGate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#src.agentic_layer.agents.QueryGeneratorAgent"><code class="docutils literal notranslate"><span class="pre">QueryGeneratorAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#module-src.agentic_layer.agents.cache_agent">CacheAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#module-src.agentic_layer.agents.capability_interpreter">CapabilityInterpreterAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#module-src.agentic_layer.agents.query_validator">QueryValidatorAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#module-src.agentic_layer.agents.query_execution">QueryExecutionAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#module-src.agentic_layer.agents.rule_agent">RuleAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#module-src.agentic_layer.agents.search_learner_agent">SearchLearnerAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#module-src.agentic_layer.agents.human_gate">HumanInterventionGate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/agents.html#module-src.agentic_layer.agents.query_generator_agent">QueryGeneratorAgent</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/auth.html">auth package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/auth.html#src.agentic_layer.auth.AuthProvider"><code class="docutils literal notranslate"><span class="pre">AuthProvider</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/auth.html#src.agentic_layer.auth.BearerTokenProvider"><code class="docutils literal notranslate"><span class="pre">BearerTokenProvider</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/auth.html#src.agentic_layer.auth.OAuth2ClientCredentialsProvider"><code class="docutils literal notranslate"><span class="pre">OAuth2ClientCredentialsProvider</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/auth.html#src.agentic_layer.auth.build_auth_provider"><code class="docutils literal notranslate"><span class="pre">build_auth_provider()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/auth.html#src.agentic_layer.auth.resolve_auth_headers"><code class="docutils literal notranslate"><span class="pre">resolve_auth_headers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/auth.html#module-src.agentic_layer.auth.provider">provider</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/auth.html#module-src.agentic_layer.auth.identity">identity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/auth.html#module-src.agentic_layer.auth.operator">operator</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/config.html">config package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/config.html#src.agentic_layer.config.get_settings"><code class="docutils literal notranslate"><span class="pre">get_settings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/config.html#src.agentic_layer.config.ServerConfig"><code class="docutils literal notranslate"><span class="pre">ServerConfig</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/config.html#module-src.agentic_layer.config.settings">settings</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/graph.html">graph package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/graph.html#module-src.agentic_layer.graph.validation_workflow">validation_workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/graph.html#module-src.agentic_layer.graph.workflow_engine">workflow_engine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/graph.html#module-src.agentic_layer.graph.nodes">nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/state.html">state package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/state.html#module-src.agentic_layer.state.workflow_state">workflow_state</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/utils.html">utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/utils.html#module-src.agentic_layer.utils.audit_log">audit_log</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/utils.html#module-src.agentic_layer.utils.query_parser">query_parser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/utils.html#module-src.agentic_layer.utils.url_safety">url_safety</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/utils.html#module-src.agentic_layer.utils.logging_safe">logging_safe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/utils.html#module-src.agentic_layer.utils.fhir_resource_registry">fhir_resource_registry</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/exceptions.html">exceptions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/exceptions.html#src.agentic_layer.exceptions.FhirValidatorError"><code class="docutils literal notranslate"><span class="pre">FhirValidatorError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/exceptions.html#src.agentic_layer.exceptions.UnknownServerKeyError"><code class="docutils literal notranslate"><span class="pre">UnknownServerKeyError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/exceptions.html#src.agentic_layer.exceptions.AuthenticationRequiredError"><code class="docutils literal notranslate"><span class="pre">AuthenticationRequiredError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/exceptions.html#src.agentic_layer.exceptions.CapabilityFetchError"><code class="docutils literal notranslate"><span class="pre">CapabilityFetchError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/fhir_validator_agent.html">fhir_validator_agent package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/fhir_validator_agent.html#threat-model-adk-web-networked-exposure">Threat model (ADK Web / networked exposure)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Related Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="external_docs.html">Repository Markdown Guides</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fhir-query-validator-factory</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Index</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ 
+</div>
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.WorkflowAgents.audit_log">audit_log (src.agentic_layer.graph.workflow_engine.WorkflowAgents attribute)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.audit_log.AuditLog">AuditLog (class in src.agentic_layer.utils.audit_log)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.audit_log.AuditRecord">AuditRecord (class in src.agentic_layer.utils.audit_log)</a>
+</li>
+      <li><a href="api/auth.html#src.agentic_layer.auth.provider.auth_cache_suffix">auth_cache_suffix() (in module src.agentic_layer.auth.provider)</a>
+</li>
+      <li><a href="api/config.html#src.agentic_layer.config.ServerConfig.auth_token">auth_token (src.agentic_layer.config.ServerConfig attribute)</a>
+
+      <ul>
+        <li><a href="api/config.html#src.agentic_layer.config.settings.ServerConfig.auth_token">(src.agentic_layer.config.settings.ServerConfig attribute)</a>
+</li>
+        <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.auth_token">(src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/exceptions.html#src.agentic_layer.exceptions.AuthenticationRequiredError">AuthenticationRequiredError</a>
+</li>
+      <li><a href="api/auth.html#src.agentic_layer.auth.AuthProvider">AuthProvider (class in src.agentic_layer.auth)</a>
+
+      <ul>
+        <li><a href="api/auth.html#src.agentic_layer.auth.provider.AuthProvider">(class in src.agentic_layer.auth.provider)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/config.html#src.agentic_layer.config.ServerConfig.base_url">base_url (src.agentic_layer.config.ServerConfig attribute)</a>
+
+      <ul>
+        <li><a href="api/config.html#src.agentic_layer.config.settings.ServerConfig.base_url">(src.agentic_layer.config.settings.ServerConfig attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/auth.html#src.agentic_layer.auth.BearerTokenProvider">BearerTokenProvider (class in src.agentic_layer.auth)</a>
+
+      <ul>
+        <li><a href="api/auth.html#src.agentic_layer.auth.provider.BearerTokenProvider">(class in src.agentic_layer.auth.provider)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/auth.html#src.agentic_layer.auth.build_auth_provider">build_auth_provider() (in module src.agentic_layer.auth)</a>
+
+      <ul>
+        <li><a href="api/auth.html#src.agentic_layer.auth.provider.build_auth_provider">(in module src.agentic_layer.auth.provider)</a>
+</li>
+      </ul></li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.url_safety.build_fhir_target_url">build_fhir_target_url() (in module src.agentic_layer.utils.url_safety)</a>
+</li>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.build_final_output">build_final_output() (in module src.agentic_layer.graph.workflow_engine)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.WorkflowAgents.cache_agent">cache_agent (src.agentic_layer.graph.workflow_engine.WorkflowAgents attribute)</a>
+</li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.CacheAgent">CacheAgent (class in src.agentic_layer.agents)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.cache_agent.CacheAgent">(class in src.agentic_layer.agents.cache_agent)</a>
+</li>
+      </ul></li>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.capability_statement">capability_statement (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      <li><a href="api/exceptions.html#src.agentic_layer.exceptions.CapabilityFetchError">CapabilityFetchError</a>
+</li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.CapabilityInterpreterAgent">CapabilityInterpreterAgent (class in src.agentic_layer.agents)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.capability_interpreter.CapabilityInterpreterAgent">(class in src.agentic_layer.agents.capability_interpreter)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/utils.html#src.agentic_layer.utils.query_parser.ParsedSearchParam.chained">chained (src.agentic_layer.utils.query_parser.ParsedSearchParam attribute)</a>
+</li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.human_gate.HumanInterventionGate.classify_severity">classify_severity() (src.agentic_layer.agents.human_gate.HumanInterventionGate method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.HumanInterventionGate.classify_severity">(src.agentic_layer.agents.HumanInterventionGate method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.query_parser.ParsedSearchParam.comparator">comparator (src.agentic_layer.utils.query_parser.ParsedSearchParam attribute)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec.comparators">comparators (src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec attribute)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.audit_log.AuditRecord.context">context (src.agentic_layer.utils.audit_log.AuditRecord attribute)</a>
+</li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.human_gate.InterventionSeverity.CRITICAL">CRITICAL (src.agentic_layer.agents.human_gate.InterventionSeverity attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/agents.html#src.agentic_layer.agents.rule_agent.RuleAgent.decide_escalation">decide_escalation() (src.agentic_layer.agents.rule_agent.RuleAgent method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.RuleAgent.decide_escalation">(src.agentic_layer.agents.RuleAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.audit_log.AuditRecord.decision">decision (src.agentic_layer.utils.audit_log.AuditRecord attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/agents.html#src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent.describe_resource">describe_resource() (src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.QueryGeneratorAgent.describe_resource">(src.agentic_layer.agents.QueryGeneratorAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec.documentation">documentation (src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.encode_search_value">encode_search_value() (in module src.agentic_layer.utils.fhir_resource_registry)</a>
+</li>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.escalation_audit">escalation_audit (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.escalation_decision">escalation_decision (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.audit_log.AuditRecord.event_type">event_type (src.agentic_layer.utils.audit_log.AuditRecord attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/agents.html#src.agentic_layer.agents.query_execution.QueryExecutionAgent.execute">execute() (src.agentic_layer.agents.query_execution.QueryExecutionAgent method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.QueryExecutionAgent.execute">(src.agentic_layer.agents.QueryExecutionAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.execute_workflow">execute_workflow() (in module src.agentic_layer.graph.workflow_engine)</a>
+</li>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.execution_result">execution_result (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.WorkflowAgents.executor">executor (src.agentic_layer.graph.workflow_engine.WorkflowAgents attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    fhir_validator_agent.agent
+
+      <ul>
+        <li><a href="api/fhir_validator_agent.html#module-fhir_validator_agent.agent">module</a>
+</li>
+      </ul></li>
+      <li><a href="api/exceptions.html#src.agentic_layer.exceptions.FhirValidatorError">FhirValidatorError</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.final_output">final_output (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      <li><a href="api/graph.html#src.agentic_layer.graph.nodes.finalize_output">finalize_output() (in module src.agentic_layer.graph.nodes)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.logging_safe.format_query_log_label">format_query_log_label() (in module src.agentic_layer.utils.logging_safe)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/agents.html#src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent.generate">generate() (src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.QueryGeneratorAgent.generate">(src.agentic_layer.agents.QueryGeneratorAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent.generate_from_intent">generate_from_intent() (src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.QueryGeneratorAgent.generate_from_intent">(src.agentic_layer.agents.QueryGeneratorAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.generated_query">generated_query (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      <li><a href="api/config.html#src.agentic_layer.config.settings.get_auth_headers">get_auth_headers() (in module src.agentic_layer.config.settings)</a>
+</li>
+      <li><a href="api/config.html#src.agentic_layer.config.settings.get_auth_provider">get_auth_provider() (in module src.agentic_layer.config.settings)</a>
+</li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.cache_agent.CacheAgent.get_capability_statement">get_capability_statement() (src.agentic_layer.agents.cache_agent.CacheAgent method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.CacheAgent.get_capability_statement">(src.agentic_layer.agents.CacheAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/auth.html#src.agentic_layer.auth.AuthProvider.get_headers">get_headers() (src.agentic_layer.auth.AuthProvider method)</a>
+
+      <ul>
+        <li><a href="api/auth.html#src.agentic_layer.auth.BearerTokenProvider.get_headers">(src.agentic_layer.auth.BearerTokenProvider method)</a>
+</li>
+        <li><a href="api/auth.html#src.agentic_layer.auth.OAuth2ClientCredentialsProvider.get_headers">(src.agentic_layer.auth.OAuth2ClientCredentialsProvider method)</a>
+</li>
+        <li><a href="api/auth.html#src.agentic_layer.auth.provider.AuthProvider.get_headers">(src.agentic_layer.auth.provider.AuthProvider method)</a>
+</li>
+        <li><a href="api/auth.html#src.agentic_layer.auth.provider.BearerTokenProvider.get_headers">(src.agentic_layer.auth.provider.BearerTokenProvider method)</a>
+</li>
+        <li><a href="api/auth.html#src.agentic_layer.auth.provider.OAuth2ClientCredentialsProvider.get_headers">(src.agentic_layer.auth.provider.OAuth2ClientCredentialsProvider method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.get_param">get_param() (src.agentic_layer.utils.fhir_resource_registry.ResourceSpec method)</a>
+</li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.query_validator.QueryValidatorAgent.get_pattern_stats">get_pattern_stats() (src.agentic_layer.agents.query_validator.QueryValidatorAgent method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.QueryValidatorAgent.get_pattern_stats">(src.agentic_layer.agents.QueryValidatorAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.get_resource_spec">get_resource_spec() (in module src.agentic_layer.utils.fhir_resource_registry)</a>
+</li>
+      <li><a href="api/config.html#src.agentic_layer.config.settings.get_server_config">get_server_config() (in module src.agentic_layer.config.settings)</a>
+</li>
+      <li><a href="api/config.html#src.agentic_layer.config.get_settings">get_settings() (in module src.agentic_layer.config)</a>
+
+      <ul>
+        <li><a href="api/config.html#src.agentic_layer.config.settings.get_settings">(in module src.agentic_layer.config.settings)</a>
+</li>
+      </ul></li>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.get_workflow_agents">get_workflow_agents() (in module src.agentic_layer.graph.workflow_engine)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/agents.html#src.agentic_layer.agents.human_gate.InterventionSeverity.HIGH">HIGH (src.agentic_layer.agents.human_gate.InterventionSeverity attribute)</a>
+</li>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.WorkflowAgents.human_gate">human_gate (src.agentic_layer.graph.workflow_engine.WorkflowAgents attribute)</a>
+</li>
+      <li><a href="api/auth.html#src.agentic_layer.auth.operator.human_gate_auth_required">human_gate_auth_required() (in module src.agentic_layer.auth.operator)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.human_review">human_review (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      <li><a href="api/auth.html#src.agentic_layer.auth.operator.HumanGateAuthError">HumanGateAuthError</a>
+</li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.HumanInterventionGate">HumanInterventionGate (class in src.agentic_layer.agents)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.human_gate.HumanInterventionGate">(class in src.agentic_layer.agents.human_gate)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/graph.html#src.agentic_layer.graph.nodes.initialize_workflow">initialize_workflow() (in module src.agentic_layer.graph.nodes)</a>
+</li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.capability_interpreter.CapabilityInterpreterAgent.interpret">interpret() (src.agentic_layer.agents.capability_interpreter.CapabilityInterpreterAgent method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.CapabilityInterpreterAgent.interpret">(src.agentic_layer.agents.CapabilityInterpreterAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.interpreted_capability">interpreted_capability (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.WorkflowAgents.interpreter">interpreter (src.agentic_layer.graph.workflow_engine.WorkflowAgents attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/agents.html#src.agentic_layer.agents.human_gate.InterventionSeverity">InterventionSeverity (class in src.agentic_layer.agents.human_gate)</a>
+</li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.cache_agent.CacheAgent.invalidate">invalidate() (src.agentic_layer.agents.cache_agent.CacheAgent method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.CacheAgent.invalidate">(src.agentic_layer.agents.CacheAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.human_gate.HumanInterventionGate.is_paused">is_paused() (src.agentic_layer.agents.human_gate.HumanInterventionGate method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.HumanInterventionGate.is_paused">(src.agentic_layer.agents.HumanInterventionGate method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/config.html#src.agentic_layer.config.ServerConfig.key">key (src.agentic_layer.config.ServerConfig attribute)</a>
+
+      <ul>
+        <li><a href="api/config.html#src.agentic_layer.config.settings.ServerConfig.key">(src.agentic_layer.config.settings.ServerConfig attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.WorkflowAgents.learner_agent">learner_agent (src.agentic_layer.graph.workflow_engine.WorkflowAgents attribute)</a>
+</li>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.learner_guidance">learner_guidance (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.list_resource_types">list_resource_types() (in module src.agentic_layer.utils.fhir_resource_registry)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/agents.html#src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent.list_resources">list_resources() (src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.QueryGeneratorAgent.list_resources">(src.agentic_layer.agents.QueryGeneratorAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.load_registry">load_registry() (in module src.agentic_layer.utils.fhir_resource_registry)</a>
+</li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.human_gate.InterventionSeverity.LOW">LOW (src.agentic_layer.agents.human_gate.InterventionSeverity attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/agents.html#src.agentic_layer.agents.human_gate.InterventionSeverity.MEDIUM">MEDIUM (src.agentic_layer.agents.human_gate.InterventionSeverity attribute)</a>
+</li>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.mode">mode (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.model_config">model_config (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.query_parser.ParsedSearchParam.modifier">modifier (src.agentic_layer.utils.query_parser.ParsedSearchParam attribute)</a>
+</li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="api/fhir_validator_agent.html#module-fhir_validator_agent.agent">fhir_validator_agent.agent</a>
+</li>
+        <li><a href="api/agentic_layer.html#module-src.agentic_layer">src.agentic_layer</a>
+</li>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents">src.agentic_layer.agents</a>
+</li>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.cache_agent">src.agentic_layer.agents.cache_agent</a>
+</li>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.capability_interpreter">src.agentic_layer.agents.capability_interpreter</a>
+</li>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.human_gate">src.agentic_layer.agents.human_gate</a>
+</li>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.query_execution">src.agentic_layer.agents.query_execution</a>
+</li>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.query_generator_agent">src.agentic_layer.agents.query_generator_agent</a>
+</li>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.query_validator">src.agentic_layer.agents.query_validator</a>
+</li>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.rule_agent">src.agentic_layer.agents.rule_agent</a>
+</li>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.search_learner_agent">src.agentic_layer.agents.search_learner_agent</a>
+</li>
+        <li><a href="api/auth.html#module-src.agentic_layer.auth">src.agentic_layer.auth</a>
+</li>
+        <li><a href="api/auth.html#module-src.agentic_layer.auth.identity">src.agentic_layer.auth.identity</a>
+</li>
+        <li><a href="api/auth.html#module-src.agentic_layer.auth.operator">src.agentic_layer.auth.operator</a>
+</li>
+        <li><a href="api/auth.html#module-src.agentic_layer.auth.provider">src.agentic_layer.auth.provider</a>
+</li>
+        <li><a href="api/config.html#module-src.agentic_layer.config">src.agentic_layer.config</a>
+</li>
+        <li><a href="api/config.html#module-src.agentic_layer.config.settings">src.agentic_layer.config.settings</a>
+</li>
+        <li><a href="api/exceptions.html#module-src.agentic_layer.exceptions">src.agentic_layer.exceptions</a>
+</li>
+        <li><a href="api/graph.html#module-src.agentic_layer.graph.nodes">src.agentic_layer.graph.nodes</a>
+</li>
+        <li><a href="api/graph.html#module-src.agentic_layer.graph.validation_workflow">src.agentic_layer.graph.validation_workflow</a>
+</li>
+        <li><a href="api/graph.html#module-src.agentic_layer.graph.workflow_engine">src.agentic_layer.graph.workflow_engine</a>
+</li>
+        <li><a href="api/state.html#module-src.agentic_layer.state.workflow_state">src.agentic_layer.state.workflow_state</a>
+</li>
+        <li><a href="api/utils.html#module-src.agentic_layer.utils.audit_log">src.agentic_layer.utils.audit_log</a>
+</li>
+        <li><a href="api/utils.html#module-src.agentic_layer.utils.fhir_resource_registry">src.agentic_layer.utils.fhir_resource_registry</a>
+</li>
+        <li><a href="api/utils.html#module-src.agentic_layer.utils.logging_safe">src.agentic_layer.utils.logging_safe</a>
+</li>
+        <li><a href="api/utils.html#module-src.agentic_layer.utils.query_parser">src.agentic_layer.utils.query_parser</a>
+</li>
+        <li><a href="api/utils.html#module-src.agentic_layer.utils.url_safety">src.agentic_layer.utils.url_safety</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/config.html#src.agentic_layer.config.ServerConfig.name">name (src.agentic_layer.config.ServerConfig attribute)</a>
+
+      <ul>
+        <li><a href="api/config.html#src.agentic_layer.config.settings.ServerConfig.name">(src.agentic_layer.config.settings.ServerConfig attribute)</a>
+</li>
+        <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec.name">(src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec attribute)</a>
+</li>
+        <li><a href="api/utils.html#src.agentic_layer.utils.query_parser.ParsedSearchParam.name">(src.agentic_layer.utils.query_parser.ParsedSearchParam attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/auth.html#src.agentic_layer.auth.OAuth2ClientCredentialsProvider">OAuth2ClientCredentialsProvider (class in src.agentic_layer.auth)</a>
+
+      <ul>
+        <li><a href="api/auth.html#src.agentic_layer.auth.provider.OAuth2ClientCredentialsProvider">(class in src.agentic_layer.auth.provider)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.param_names">param_names() (src.agentic_layer.utils.fhir_resource_registry.ResourceSpec method)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.query_parser.ParsedQuery.params">params (src.agentic_layer.utils.query_parser.ParsedQuery attribute)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.query_parser.parse_query_url">parse_query_url() (in module src.agentic_layer.utils.query_parser)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.query_parser.ParsedQuery">ParsedQuery (class in src.agentic_layer.utils.query_parser)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/utils.html#src.agentic_layer.utils.query_parser.ParsedSearchParam">ParsedSearchParam (class in src.agentic_layer.utils.query_parser)</a>
+</li>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.pattern_detected">pattern_detected (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.search_learner_agent.SearchLearnerAgent.provide_guidance">provide_guidance() (src.agentic_layer.agents.search_learner_agent.SearchLearnerAgent method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.SearchLearnerAgent.provide_guidance">(src.agentic_layer.agents.SearchLearnerAgent method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/utils.html#src.agentic_layer.utils.audit_log.AuditLog.query">query() (src.agentic_layer.utils.audit_log.AuditLog method)</a>
+</li>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.query_generation">query_generation (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.WorkflowAgents.query_generator">query_generator (src.agentic_layer.graph.workflow_engine.WorkflowAgents attribute)</a>
+</li>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.query_url">query_url (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.QueryExecutionAgent">QueryExecutionAgent (class in src.agentic_layer.agents)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.query_execution.QueryExecutionAgent">(class in src.agentic_layer.agents.query_execution)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/agents.html#src.agentic_layer.agents.QueryGeneratorAgent">QueryGeneratorAgent (class in src.agentic_layer.agents)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.query_generator_agent.QueryGeneratorAgent">(class in src.agentic_layer.agents.query_generator_agent)</a>
+</li>
+      </ul></li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.QueryValidatorAgent">QueryValidatorAgent (class in src.agentic_layer.agents)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.query_validator.QueryValidatorAgent">(class in src.agentic_layer.agents.query_validator)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/utils.html#src.agentic_layer.utils.query_parser.ParsedQuery.raw_query">raw_query (src.agentic_layer.utils.query_parser.ParsedQuery attribute)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.audit_log.AuditRecord.reasoning">reasoning (src.agentic_layer.utils.audit_log.AuditRecord attribute)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.audit_log.AuditLog.record">record() (src.agentic_layer.utils.audit_log.AuditLog method)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.registry_metadata">registry_metadata() (in module src.agentic_layer.utils.fhir_resource_registry)</a>
+</li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.human_gate.HumanInterventionGate.request_human_review">request_human_review() (src.agentic_layer.agents.human_gate.HumanInterventionGate method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.HumanInterventionGate.request_human_review">(src.agentic_layer.agents.HumanInterventionGate method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/config.html#src.agentic_layer.config.ServerConfig.requires_auth">requires_auth (src.agentic_layer.config.ServerConfig attribute)</a>
+
+      <ul>
+        <li><a href="api/config.html#src.agentic_layer.config.settings.ServerConfig.requires_auth">(src.agentic_layer.config.settings.ServerConfig attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.WorkflowAgents.reset">reset() (src.agentic_layer.graph.workflow_engine.WorkflowAgents method)</a>
+</li>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.reset_singletons">reset_singletons() (in module src.agentic_layer.graph.workflow_engine)</a>
+</li>
+      <li><a href="api/auth.html#src.agentic_layer.auth.resolve_auth_headers">resolve_auth_headers() (in module src.agentic_layer.auth)</a>
+
+      <ul>
+        <li><a href="api/auth.html#src.agentic_layer.auth.provider.resolve_auth_headers">(in module src.agentic_layer.auth.provider)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/auth.html#src.agentic_layer.auth.identity.resolve_workflow_user_id">resolve_workflow_user_id() (in module src.agentic_layer.auth.identity)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.resource_page">resource_page (src.agentic_layer.utils.fhir_resource_registry.ResourceSpec attribute)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.resource_type">resource_type (src.agentic_layer.utils.fhir_resource_registry.ResourceSpec attribute)</a>
+
+      <ul>
+        <li><a href="api/utils.html#src.agentic_layer.utils.query_parser.ParsedQuery.resource_type">(src.agentic_layer.utils.query_parser.ParsedQuery attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec">ResourceSpec (class in src.agentic_layer.utils.fhir_resource_registry)</a>
+</li>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.WorkflowAgents.rule_agent">rule_agent (src.agentic_layer.graph.workflow_engine.WorkflowAgents attribute)</a>
+</li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.RuleAgent">RuleAgent (class in src.agentic_layer.agents)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.rule_agent.RuleAgent">(class in src.agentic_layer.agents.rule_agent)</a>
+</li>
+      </ul></li>
+      <li><a href="api/graph.html#src.agentic_layer.graph.nodes.run_validation_pipeline">run_validation_pipeline() (in module src.agentic_layer.graph.nodes)</a>
+</li>
+      <li><a href="api/graph.html#src.agentic_layer.graph.validation_workflow.run_validation_workflow">run_validation_workflow() (in module src.agentic_layer.graph.validation_workflow)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.search_page">search_page (src.agentic_layer.utils.fhir_resource_registry.ResourceSpec attribute)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.search_params">search_params (src.agentic_layer.utils.fhir_resource_registry.ResourceSpec attribute)</a>
+</li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.SearchLearnerAgent">SearchLearnerAgent (class in src.agentic_layer.agents)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.search_learner_agent.SearchLearnerAgent">(class in src.agentic_layer.agents.search_learner_agent)</a>
+</li>
+      </ul></li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec">SearchParamSpec (class in src.agentic_layer.utils.fhir_resource_registry)</a>
+</li>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.server_key">server_key (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+
+      <ul>
+        <li><a href="api/utils.html#src.agentic_layer.utils.audit_log.AuditRecord.server_key">(src.agentic_layer.utils.audit_log.AuditRecord attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/config.html#src.agentic_layer.config.ServerConfig">ServerConfig (class in src.agentic_layer.config)</a>
+
+      <ul>
+        <li><a href="api/config.html#src.agentic_layer.config.settings.ServerConfig">(class in src.agentic_layer.config.settings)</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer
+
+      <ul>
+        <li><a href="api/agentic_layer.html#module-src.agentic_layer">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.agents
+
+      <ul>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.agents.cache_agent
+
+      <ul>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.cache_agent">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.agents.capability_interpreter
+
+      <ul>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.capability_interpreter">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.agents.human_gate
+
+      <ul>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.human_gate">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.agents.query_execution
+
+      <ul>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.query_execution">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.agents.query_generator_agent
+
+      <ul>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.query_generator_agent">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.agents.query_validator
+
+      <ul>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.query_validator">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.agents.rule_agent
+
+      <ul>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.rule_agent">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.agents.search_learner_agent
+
+      <ul>
+        <li><a href="api/agents.html#module-src.agentic_layer.agents.search_learner_agent">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.auth
+
+      <ul>
+        <li><a href="api/auth.html#module-src.agentic_layer.auth">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    src.agentic_layer.auth.identity
+
+      <ul>
+        <li><a href="api/auth.html#module-src.agentic_layer.auth.identity">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.auth.operator
+
+      <ul>
+        <li><a href="api/auth.html#module-src.agentic_layer.auth.operator">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.auth.provider
+
+      <ul>
+        <li><a href="api/auth.html#module-src.agentic_layer.auth.provider">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.config
+
+      <ul>
+        <li><a href="api/config.html#module-src.agentic_layer.config">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.config.settings
+
+      <ul>
+        <li><a href="api/config.html#module-src.agentic_layer.config.settings">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.exceptions
+
+      <ul>
+        <li><a href="api/exceptions.html#module-src.agentic_layer.exceptions">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.graph.nodes
+
+      <ul>
+        <li><a href="api/graph.html#module-src.agentic_layer.graph.nodes">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.graph.validation_workflow
+
+      <ul>
+        <li><a href="api/graph.html#module-src.agentic_layer.graph.validation_workflow">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.graph.workflow_engine
+
+      <ul>
+        <li><a href="api/graph.html#module-src.agentic_layer.graph.workflow_engine">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.state.workflow_state
+
+      <ul>
+        <li><a href="api/state.html#module-src.agentic_layer.state.workflow_state">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.utils.audit_log
+
+      <ul>
+        <li><a href="api/utils.html#module-src.agentic_layer.utils.audit_log">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.utils.fhir_resource_registry
+
+      <ul>
+        <li><a href="api/utils.html#module-src.agentic_layer.utils.fhir_resource_registry">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.utils.logging_safe
+
+      <ul>
+        <li><a href="api/utils.html#module-src.agentic_layer.utils.logging_safe">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.utils.query_parser
+
+      <ul>
+        <li><a href="api/utils.html#module-src.agentic_layer.utils.query_parser">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.agentic_layer.utils.url_safety
+
+      <ul>
+        <li><a href="api/utils.html#module-src.agentic_layer.utils.url_safety">module</a>
+</li>
+      </ul></li>
+      <li><a href="api/agents.html#src.agentic_layer.agents.human_gate.HumanInterventionGate.submit_review_decision">submit_review_decision() (src.agentic_layer.agents.human_gate.HumanInterventionGate method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.HumanInterventionGate.submit_review_decision">(src.agentic_layer.agents.HumanInterventionGate method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/utils.html#src.agentic_layer.utils.audit_log.AuditRecord.timestamp">timestamp (src.agentic_layer.utils.audit_log.AuditRecord attribute)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.audit_log.AuditRecord.to_dict">to_dict() (src.agentic_layer.utils.audit_log.AuditRecord method)</a>
+
+      <ul>
+        <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.to_dict">(src.agentic_layer.utils.fhir_resource_registry.ResourceSpec method)</a>
+</li>
+        <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec.to_dict">(src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/auth.html#src.agentic_layer.auth.identity.trust_client_user_id">trust_client_user_id() (in module src.agentic_layer.auth.identity)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec.type">type (src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/exceptions.html#src.agentic_layer.exceptions.UnknownServerKeyError">UnknownServerKeyError</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.url_safety.UnsafeQueryUrlError">UnsafeQueryUrlError</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.user_id">user_id (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+
+      <ul>
+        <li><a href="api/utils.html#src.agentic_layer.utils.audit_log.AuditRecord.user_id">(src.agentic_layer.utils.audit_log.AuditRecord attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/agents.html#src.agentic_layer.agents.query_validator.QueryValidatorAgent.validate">validate() (src.agentic_layer.agents.query_validator.QueryValidatorAgent method)</a>
+
+      <ul>
+        <li><a href="api/agents.html#src.agentic_layer.agents.QueryValidatorAgent.validate">(src.agentic_layer.agents.QueryValidatorAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.validation_result">validation_result (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState">ValidationWorkflowState (class in src.agentic_layer.state.workflow_state)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.WorkflowAgents.validator">validator (src.agentic_layer.graph.workflow_engine.WorkflowAgents attribute)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.query_parser.ParsedSearchParam.value">value (src.agentic_layer.utils.query_parser.ParsedSearchParam attribute)</a>
+</li>
+      <li><a href="api/utils.html#src.agentic_layer.utils.logging_safe.verbose_logging_enabled">verbose_logging_enabled() (in module src.agentic_layer.utils.logging_safe)</a>
+</li>
+      <li><a href="api/auth.html#src.agentic_layer.auth.operator.verify_human_gate_operator">verify_human_gate_operator() (in module src.agentic_layer.auth.operator)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/state.html#src.agentic_layer.state.workflow_state.ValidationWorkflowState.workflow_error">workflow_error (src.agentic_layer.state.workflow_state.ValidationWorkflowState attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.workflow_isolation_enabled">workflow_isolation_enabled() (in module src.agentic_layer.graph.workflow_engine)</a>
+</li>
+      <li><a href="api/graph.html#src.agentic_layer.graph.workflow_engine.WorkflowAgents">WorkflowAgents (class in src.agentic_layer.graph.workflow_engine)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Yogesh.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

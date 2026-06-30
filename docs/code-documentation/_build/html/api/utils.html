@@ -1,0 +1,712 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils package &mdash; FHIR Query Validator Factory</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="exceptions module" href="exceptions.html" />
+    <link rel="prev" title="state package" href="state.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            fhir-query-validator-factory
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#goals">Goals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#core-principles">Core principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#technology-stack">Technology stack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#repository-layout">Repository layout</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#install-dependencies">Install dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#optional-extras">Optional extras</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#secrets-and-configuration">Secrets and configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#run-a-demo">Run a demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#generate-a-query-then-validate">Generate a query then validate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#adk-entry-point">ADK entry point</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#build-code-documentation">Build code documentation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture.html#high-level-flow">High-level flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture.html#specialist-agents">Specialist agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture.html#adk-graph-wrapper">ADK graph wrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture.html#state-model">State model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture.html#further-reading">Further reading</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow Engine</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../workflow.html#execution-order">Execution order</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../workflow.html#workflow-modes">Workflow modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../workflow.html#output-contract">Output contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../workflow.html#agent-bundles-and-isolation">Agent bundles and isolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../workflow.html#escalation-thresholds">Escalation thresholds</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../agents.html">Agents</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#cacheagent">CacheAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#capabilityinterpreteragent">CapabilityInterpreterAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#queryvalidatoragent">QueryValidatorAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#queryexecutionagent">QueryExecutionAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#ruleagent">RuleAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#searchlearneragent">SearchLearnerAgent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#humaninterventiongate">HumanInterventionGate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../agents.html#querygeneratoragent">QueryGeneratorAgent</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../query_generator.html">Query Generator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../query_generator.html#data-source">Data source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../query_generator.html#supported-resource-types-bundled">Supported resource types (bundled)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../query_generator.html#api-overview">API overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../query_generator.html#workflow-integration">Workflow integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../query_generator.html#demo">Demo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">Security</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../security.html#hardening-controls">Hardening controls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security.html#adk-web-threat-model">ADK Web threat model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security.html#automated-scanning">Automated scanning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security.html#review-artifacts">Review artifacts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../demos.html">Demo Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../demos.html#makefile-targets">Makefile targets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../demos.html#singleton-reset">Singleton reset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../testing.html#test-layout">Test layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testing.html#run-tests">Run tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testing.html#coverage">Coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testing.html#security-tests">Security tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testing.html#ci">CI</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#package-overview">Package overview</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="agentic_layer.html">agentic_layer package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="agents.html">agents package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#src.agentic_layer.agents.CacheAgent"><code class="docutils literal notranslate"><span class="pre">CacheAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#src.agentic_layer.agents.CapabilityInterpreterAgent"><code class="docutils literal notranslate"><span class="pre">CapabilityInterpreterAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#src.agentic_layer.agents.QueryValidatorAgent"><code class="docutils literal notranslate"><span class="pre">QueryValidatorAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#src.agentic_layer.agents.QueryExecutionAgent"><code class="docutils literal notranslate"><span class="pre">QueryExecutionAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#src.agentic_layer.agents.RuleAgent"><code class="docutils literal notranslate"><span class="pre">RuleAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#src.agentic_layer.agents.SearchLearnerAgent"><code class="docutils literal notranslate"><span class="pre">SearchLearnerAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#src.agentic_layer.agents.HumanInterventionGate"><code class="docutils literal notranslate"><span class="pre">HumanInterventionGate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#src.agentic_layer.agents.QueryGeneratorAgent"><code class="docutils literal notranslate"><span class="pre">QueryGeneratorAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#module-src.agentic_layer.agents.cache_agent">CacheAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#module-src.agentic_layer.agents.capability_interpreter">CapabilityInterpreterAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#module-src.agentic_layer.agents.query_validator">QueryValidatorAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#module-src.agentic_layer.agents.query_execution">QueryExecutionAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#module-src.agentic_layer.agents.rule_agent">RuleAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#module-src.agentic_layer.agents.search_learner_agent">SearchLearnerAgent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#module-src.agentic_layer.agents.human_gate">HumanInterventionGate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="agents.html#module-src.agentic_layer.agents.query_generator_agent">QueryGeneratorAgent</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="auth.html">auth package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#src.agentic_layer.auth.AuthProvider"><code class="docutils literal notranslate"><span class="pre">AuthProvider</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#src.agentic_layer.auth.BearerTokenProvider"><code class="docutils literal notranslate"><span class="pre">BearerTokenProvider</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#src.agentic_layer.auth.OAuth2ClientCredentialsProvider"><code class="docutils literal notranslate"><span class="pre">OAuth2ClientCredentialsProvider</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#src.agentic_layer.auth.build_auth_provider"><code class="docutils literal notranslate"><span class="pre">build_auth_provider()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#src.agentic_layer.auth.resolve_auth_headers"><code class="docutils literal notranslate"><span class="pre">resolve_auth_headers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#module-src.agentic_layer.auth.provider">provider</a></li>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#module-src.agentic_layer.auth.identity">identity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="auth.html#module-src.agentic_layer.auth.operator">operator</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="config.html">config package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="config.html#src.agentic_layer.config.get_settings"><code class="docutils literal notranslate"><span class="pre">get_settings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#src.agentic_layer.config.ServerConfig"><code class="docutils literal notranslate"><span class="pre">ServerConfig</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#module-src.agentic_layer.config.settings">settings</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="graph.html">graph package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="graph.html#module-src.agentic_layer.graph.validation_workflow">validation_workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="graph.html#module-src.agentic_layer.graph.workflow_engine">workflow_engine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="graph.html#module-src.agentic_layer.graph.nodes">nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="state.html">state package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="state.html#module-src.agentic_layer.state.workflow_state">workflow_state</a></li>
+</ul>
+</li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.agentic_layer.utils.audit_log">audit_log</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.agentic_layer.utils.query_parser">query_parser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.agentic_layer.utils.url_safety">url_safety</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.agentic_layer.utils.logging_safe">logging_safe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.agentic_layer.utils.fhir_resource_registry">fhir_resource_registry</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="exceptions.html">exceptions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="exceptions.html#src.agentic_layer.exceptions.FhirValidatorError"><code class="docutils literal notranslate"><span class="pre">FhirValidatorError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="exceptions.html#src.agentic_layer.exceptions.UnknownServerKeyError"><code class="docutils literal notranslate"><span class="pre">UnknownServerKeyError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="exceptions.html#src.agentic_layer.exceptions.AuthenticationRequiredError"><code class="docutils literal notranslate"><span class="pre">AuthenticationRequiredError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="exceptions.html#src.agentic_layer.exceptions.CapabilityFetchError"><code class="docutils literal notranslate"><span class="pre">CapabilityFetchError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fhir_validator_agent.html">fhir_validator_agent package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="fhir_validator_agent.html#threat-model-adk-web-networked-exposure">Threat model (ADK Web / networked exposure)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Related Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../external_docs.html">Repository Markdown Guides</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fhir-query-validator-factory</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">utils package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="utils-package">
+<h1>utils package<a class="headerlink" href="#utils-package" title="Link to this heading"></a></h1>
+<section id="module-src.agentic_layer.utils.audit_log">
+<span id="audit-log"></span><h2>audit_log<a class="headerlink" href="#module-src.agentic_layer.utils.audit_log" title="Link to this heading"></a></h2>
+<p>Structured audit logging for escalation and human intervention decisions.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.audit_log.AuditRecord">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.audit_log.</span></span><span class="sig-name descname"><span class="pre">AuditRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'Optional[str]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'Optional[str]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'Optional[str]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reasoning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]'</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/audit_log.html#AuditRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.audit_log.AuditRecord" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>timestamp</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p></li>
+<li><p><strong>event_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>user_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>server_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>decision</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>reasoning</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>context</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.audit_log.AuditRecord.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#src.agentic_layer.utils.audit_log.AuditRecord.timestamp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.audit_log.AuditRecord.event_type">
+<span class="sig-name descname"><span class="pre">event_type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#src.agentic_layer.utils.audit_log.AuditRecord.event_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.audit_log.AuditRecord.user_id">
+<span class="sig-name descname"><span class="pre">user_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#src.agentic_layer.utils.audit_log.AuditRecord.user_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.audit_log.AuditRecord.server_key">
+<span class="sig-name descname"><span class="pre">server_key</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#src.agentic_layer.utils.audit_log.AuditRecord.server_key" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.audit_log.AuditRecord.decision">
+<span class="sig-name descname"><span class="pre">decision</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#src.agentic_layer.utils.audit_log.AuditRecord.decision" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.audit_log.AuditRecord.reasoning">
+<span class="sig-name descname"><span class="pre">reasoning</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#src.agentic_layer.utils.audit_log.AuditRecord.reasoning" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.audit_log.AuditRecord.context">
+<span class="sig-name descname"><span class="pre">context</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.agentic_layer.utils.audit_log.AuditRecord.context" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.audit_log.AuditRecord.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/audit_log.html#AuditRecord.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.audit_log.AuditRecord.to_dict" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.audit_log.AuditLog">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.audit_log.</span></span><span class="sig-name descname"><span class="pre">AuditLog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">persist_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/audit_log.html#AuditLog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.audit_log.AuditLog" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Append-only audit log with optional file persistence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>persist_path</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.audit_log.AuditLog.record">
+<span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reasoning</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/audit_log.html#AuditLog.record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.audit_log.AuditLog.record" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>reasoning</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>user_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>server_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>decision</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>context</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#src.agentic_layer.utils.audit_log.AuditRecord" title="src.agentic_layer.utils.audit_log.AuditRecord"><em>AuditRecord</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.audit_log.AuditLog.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/audit_log.html#AuditLog.query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.audit_log.AuditLog.query" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>event_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="#src.agentic_layer.utils.audit_log.AuditRecord" title="src.agentic_layer.utils.audit_log.AuditRecord"><em>AuditRecord</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.agentic_layer.utils.query_parser">
+<span id="query-parser"></span><h2>query_parser<a class="headerlink" href="#module-src.agentic_layer.utils.query_parser" title="Link to this heading"></a></h2>
+<p>FHIR search query parsing utilities.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.query_parser.ParsedSearchParam">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.query_parser.</span></span><span class="sig-name descname"><span class="pre">ParsedSearchParam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'Optional[str]'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comparator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'Optional[str]'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chained</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'bool'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/query_parser.html#ParsedSearchParam"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.query_parser.ParsedSearchParam" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>modifier</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>comparator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>chained</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.query_parser.ParsedSearchParam.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#src.agentic_layer.utils.query_parser.ParsedSearchParam.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.query_parser.ParsedSearchParam.value">
+<span class="sig-name descname"><span class="pre">value</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></span><a class="headerlink" href="#src.agentic_layer.utils.query_parser.ParsedSearchParam.value" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.query_parser.ParsedSearchParam.modifier">
+<span class="sig-name descname"><span class="pre">modifier</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.agentic_layer.utils.query_parser.ParsedSearchParam.modifier" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.query_parser.ParsedSearchParam.comparator">
+<span class="sig-name descname"><span class="pre">comparator</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.agentic_layer.utils.query_parser.ParsedSearchParam.comparator" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.query_parser.ParsedSearchParam.chained">
+<span class="sig-name descname"><span class="pre">chained</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#src.agentic_layer.utils.query_parser.ParsedSearchParam.chained" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.query_parser.ParsedQuery">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.query_parser.</span></span><span class="sig-name descname"><span class="pre">ParsedQuery</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'list[ParsedSearchParam]'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/query_parser.html#ParsedQuery"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.query_parser.ParsedQuery" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resource_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference internal" href="#src.agentic_layer.utils.query_parser.ParsedSearchParam" title="src.agentic_layer.utils.query_parser.ParsedSearchParam"><em>ParsedSearchParam</em></a><em>]</em>)</p></li>
+<li><p><strong>raw_query</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.query_parser.ParsedQuery.resource_type">
+<span class="sig-name descname"><span class="pre">resource_type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#src.agentic_layer.utils.query_parser.ParsedQuery.resource_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.query_parser.ParsedQuery.params">
+<span class="sig-name descname"><span class="pre">params</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.agentic_layer.utils.query_parser.ParsedSearchParam" title="src.agentic_layer.utils.query_parser.ParsedSearchParam"><span class="pre">ParsedSearchParam</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.agentic_layer.utils.query_parser.ParsedQuery.params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.query_parser.ParsedQuery.raw_query">
+<span class="sig-name descname"><span class="pre">raw_query</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></span><a class="headerlink" href="#src.agentic_layer.utils.query_parser.ParsedQuery.raw_query" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.query_parser.parse_query_url">
+<span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.query_parser.</span></span><span class="sig-name descname"><span class="pre">parse_query_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/query_parser.html#parse_query_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.query_parser.parse_query_url" title="Link to this definition"></a></dt>
+<dd><p>Parse a FHIR search query URL or relative query string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>query_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#src.agentic_layer.utils.query_parser.ParsedQuery" title="src.agentic_layer.utils.query_parser.ParsedQuery"><em>ParsedQuery</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.agentic_layer.utils.url_safety">
+<span id="url-safety"></span><h2>url_safety<a class="headerlink" href="#module-src.agentic_layer.utils.url_safety" title="Link to this heading"></a></h2>
+<p>Safe URL construction for outbound FHIR requests.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.url_safety.UnsafeQueryUrlError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.url_safety.</span></span><span class="sig-name descname"><span class="pre">UnsafeQueryUrlError</span></span><a class="reference internal" href="../_modules/src/agentic_layer/utils/url_safety.html#UnsafeQueryUrlError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.url_safety.UnsafeQueryUrlError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a></p>
+<p>Raised when query_url cannot be safely joined to a server base URL.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.url_safety.build_fhir_target_url">
+<span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.url_safety.</span></span><span class="sig-name descname"><span class="pre">build_fhir_target_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/url_safety.html#build_fhir_target_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.url_safety.build_fhir_target_url" title="Link to this definition"></a></dt>
+<dd><p>Join a relative FHIR search path to a registered server base URL.</p>
+<p>Rejects absolute URLs, unexpected schemes, and netloc mismatches to reduce
+SSRF and credential-relay risk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>query_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.agentic_layer.utils.logging_safe">
+<span id="logging-safe"></span><h2>logging_safe<a class="headerlink" href="#module-src.agentic_layer.utils.logging_safe" title="Link to this heading"></a></h2>
+<p>Production-safe logging helpers that redact sensitive query details.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.logging_safe.verbose_logging_enabled">
+<span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.logging_safe.</span></span><span class="sig-name descname"><span class="pre">verbose_logging_enabled</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/logging_safe.html#verbose_logging_enabled"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.logging_safe.verbose_logging_enabled" title="Link to this definition"></a></dt>
+<dd><p>When false, agent stdout omits full query URLs and search parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.logging_safe.format_query_log_label">
+<span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.logging_safe.</span></span><span class="sig-name descname"><span class="pre">format_query_log_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/logging_safe.html#format_query_log_label"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.logging_safe.format_query_log_label" title="Link to this definition"></a></dt>
+<dd><p>Return a log-safe label for a FHIR search query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>query_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.agentic_layer.utils.fhir_resource_registry">
+<span id="fhir-resource-registry"></span><h2>fhir_resource_registry<a class="headerlink" href="#module-src.agentic_layer.utils.fhir_resource_registry" title="Link to this heading"></a></h2>
+<p>FHIR R4 resource and standard search parameter registry.</p>
+<p>Sourced from HL7 FHIR build.fhir.org resource list and per-resource search pages.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.fhir_resource_registry.</span></span><span class="sig-name descname"><span class="pre">SearchParamSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">documentation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comparators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'tuple[str,</span> <span class="pre">...]'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/fhir_resource_registry.html#SearchParamSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>documentation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>comparators</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>...</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec.type">
+<span class="sig-name descname"><span class="pre">type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec.type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec.documentation">
+<span class="sig-name descname"><span class="pre">documentation</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></span><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec.documentation" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec.comparators">
+<span class="sig-name descname"><span class="pre">comparators</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></span><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec.comparators" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/fhir_resource_registry.html#SearchParamSpec.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec.to_dict" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.ResourceSpec">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.fhir_resource_registry.</span></span><span class="sig-name descname"><span class="pre">ResourceSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'tuple[SearchParamSpec,</span> <span class="pre">...]'</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/fhir_resource_registry.html#ResourceSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resource_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>resource_page</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>search_page</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>search_params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference internal" href="#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec" title="src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec"><em>SearchParamSpec</em></a><em>, </em><em>...</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.resource_type">
+<span class="sig-name descname"><span class="pre">resource_type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.resource_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.resource_page">
+<span class="sig-name descname"><span class="pre">resource_page</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.resource_page" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.search_page">
+<span class="sig-name descname"><span class="pre">search_page</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.search_page" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.search_params">
+<span class="sig-name descname"><span class="pre">search_params</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec" title="src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec"><span class="pre">SearchParamSpec</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.search_params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.param_names">
+<span class="sig-name descname"><span class="pre">param_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/fhir_resource_registry.html#ResourceSpec.param_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.param_names" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.get_param">
+<span class="sig-name descname"><span class="pre">get_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/fhir_resource_registry.html#ResourceSpec.get_param"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.get_param" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec" title="src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec"><em>SearchParamSpec</em></a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/fhir_resource_registry.html#ResourceSpec.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec.to_dict" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.load_registry">
+<span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.fhir_resource_registry.</span></span><span class="sig-name descname"><span class="pre">load_registry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/fhir_resource_registry.html#load_registry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.load_registry" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.registry_metadata">
+<span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.fhir_resource_registry.</span></span><span class="sig-name descname"><span class="pre">registry_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/fhir_resource_registry.html#registry_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.registry_metadata" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.list_resource_types">
+<span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.fhir_resource_registry.</span></span><span class="sig-name descname"><span class="pre">list_resource_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/fhir_resource_registry.html#list_resource_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.list_resource_types" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.get_resource_spec">
+<span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.fhir_resource_registry.</span></span><span class="sig-name descname"><span class="pre">get_resource_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/fhir_resource_registry.html#get_resource_spec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.get_resource_spec" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>resource_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#src.agentic_layer.utils.fhir_resource_registry.ResourceSpec" title="src.agentic_layer.utils.fhir_resource_registry.ResourceSpec"><em>ResourceSpec</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.agentic_layer.utils.fhir_resource_registry.encode_search_value">
+<span class="sig-prename descclassname"><span class="pre">src.agentic_layer.utils.fhir_resource_registry.</span></span><span class="sig-name descname"><span class="pre">encode_search_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/agentic_layer/utils/fhir_resource_registry.html#encode_search_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.agentic_layer.utils.fhir_resource_registry.encode_search_value" title="Link to this definition"></a></dt>
+<dd><p>Format a criterion value for a FHIR search parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param</strong> (<a class="reference internal" href="#src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec" title="src.agentic_layer.utils.fhir_resource_registry.SearchParamSpec"><em>SearchParamSpec</em></a>)</p></li>
+<li><p><strong>raw_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="state.html" class="btn btn-neutral float-left" title="state package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="exceptions.html" class="btn btn-neutral float-right" title="exceptions module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Yogesh.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

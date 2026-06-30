@@ -1,6 +1,6 @@
 # Makefile for fhir-query-validator-factory
 
-.PHONY: help demo demo-loops demo-trace demo-agent-trace demo-mockhealth demo-adk-cli demo-adk-web spec-check lint security test clean
+.PHONY: help demo demo-loops demo-trace demo-agent-trace demo-mockhealth demo-adk-cli demo-adk-web demo-query-generator docs spec-check lint security test clean
 
 help:
 	@echo "Available commands:"
@@ -11,9 +11,11 @@ help:
 	@echo "  make demo-mockhealth   - Loop demo on mock.health (requires .env.local)"
 	@echo "  make demo-adk-cli      - Google ADK CLI agent demo (adk run)"
 	@echo "  make demo-adk-web      - Google ADK Web UI + API demo (adk web)"
+	@echo "  make demo-query-generator - Generate FHIR queries from standard search params"
 	@echo "  make spec-check        - Validate that all specs are present and consistent"
 	@echo "  make lint              - Run linting on Python code"
 	@echo "  make security          - Run Bandit SAST and pip-audit on runtime deps"
+	@echo "  make docs              - Build Sphinx HTML documentation (doc/_build/html)"
 	@echo "  make test              - Run unit and integration tests"
 	@echo "  make clean             - Remove generated files and caches"
 
@@ -37,6 +39,9 @@ demo-adk-cli:
 demo-adk-web:
 	python3 scripts/demo_adk_web.py
 
+demo-query-generator:
+	python3 scripts/demo_query_generator.py --intent "male patients" --run
+
 spec-check:
 	@echo "Checking documentation specs..."
 	@ls docs/spec/ | grep -E '\.md$$' || echo "No spec files found"
@@ -52,6 +57,9 @@ lint:
 security:
 	bandit -r src scripts -ll
 	pip-audit .
+
+docs:
+	$(MAKE) -C doc html
 
 test:
 	python3 -m pytest tests/ -q
