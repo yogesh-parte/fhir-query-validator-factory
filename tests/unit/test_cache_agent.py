@@ -91,3 +91,50 @@ def test_invalidate_removes_auth_scoped_entry():
     agent._cache[key] = {"data": CAPABILITY, "timestamp": 0, "etag": "etag"}
     agent.invalidate("hapi", auth_token="token")
     assert key not in agent._cache
+
+
+@patch("src.agentic_layer.agents.cache_agent.httpx.Client")
+def test_admin_global_invalidation_refetches(mock_client_class, monkeypatch):
+    monkeypatch.setenv("FHIR_CACHE_INVALIDATE", "true")
+    mock_client = MagicMock()
+    mock_client.__enter__.return_value = mock_client
+    mock_client.get.return_value = _mock_response(200, CAPABILITY, 'W/"etag-1"')
+    mock_client_class.return_value = mock_client
+
+    agent = CacheAgent(ttl_seconds=60)
+    agent.get_capability_statement("hapi")
+    agent.get_capability_statement("hapi")
+
+    assert mock_client.get.call_count == 2
+
+
+@patch("src.agentic_layer.agents.cache_agent.httpx.Client")
+def test_admin_targeted_invalidation_refetches(mock_client_class, monkeypatch):
+    monkeypatch.setenv("FHIR_CACHE_INVALIDATE_KEYS", "hapi")
+    mock_client = MagicMock()
+    mock_client.__enter__.return_value = mock_client
+    mock_client.get.return_value = _mock_response(200, CAPABILITY, 'W/"etag-1"')
+    mock_client_class.return_value = mock_client
+
+    agent = CacheAgent(ttl_seconds=60)
+    agent.get_capability_statement("hapi")
+    agent.get_capability_statement("hapi")
+
+    assert mock_client.get.call_count == 2
+
+
+@patch("src.agentic_layer.agents.cache_agent.httpx.Client")
+@patch("src.agentic_layer.agents.cache_agent.time.time")
+def test_cache_expired_refetches(mock_time, mock_client_class):
+    mock_time.side_effect = [100.0, 100.0, 200.0, 200.0]
+    mock_client = MagicMock()
+    mock_client.__enter__.return_value = mock_client
+    mock_client.get.return_value = _mock_response(200, CAPABILITY, 'W/"etag-1"')
+    mock_client_class.return_value = mock_client
+
+    agent = CacheAgent(ttl_seconds=60)
+    first = agent.get_capability_statement("hapi")
+    second = agent.get_capability_statement("hapi")
+
+    assert first == second
+    assert mock_client.get.call_count == 2

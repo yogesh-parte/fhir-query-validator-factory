@@ -50,3 +50,33 @@ def test_rule_agent_escalates_to_human_on_high_severity():
         server_key="hapi",
     )
     assert decision == "human"
+
+
+def test_rule_agent_returns_none_without_pattern():
+    agent = RuleAgent()
+    decision, audit = agent.decide_escalation(
+        pattern_detected=False,
+        validation_result={"pattern_stats": {}},
+        user_id="user-0",
+        server_key="hapi",
+    )
+    assert decision == "none"
+    assert audit["decision"] == "none"
+
+
+def test_rule_agent_pattern_flag_without_thresholds_returns_none():
+    agent = RuleAgent()
+    decision, audit = agent.decide_escalation(
+        pattern_detected=True,
+        validation_result={
+            "pattern_stats": {
+                "learner_threshold_met": False,
+                "human_threshold_met": False,
+            },
+            "high_severity": False,
+        },
+        user_id="user-4",
+        server_key="hapi",
+    )
+    assert decision == "none"
+    assert "thresholds not met" in audit["reasoning"]

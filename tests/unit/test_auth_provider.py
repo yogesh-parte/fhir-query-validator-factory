@@ -46,6 +46,43 @@ def test_build_auth_provider_returns_none_without_credentials():
     assert build_auth_provider(settings) is None
 
 
+def test_build_auth_provider_oauth2_missing_fields_returns_none():
+    settings = {
+        "use_auth": True,
+        "auth_type": "oauth2",
+        "oauth_client_id": "id",
+        "oauth_client_secret": None,
+        "oauth_token_url": "https://auth.example.com/token",
+    }
+    assert build_auth_provider(settings) is None
+
+
+def test_build_auth_provider_disabled_when_use_auth_false():
+    assert build_auth_provider({"use_auth": False, "auth_token": "ignored"}) is None
+
+
+def test_resolve_auth_headers_uses_provider_when_configured():
+    provider = BearerTokenProvider("provider-token")
+    settings = {"use_auth": True, "auth_type": "bearer", "auth_token": "env-token"}
+    headers = resolve_auth_headers(
+        requires_auth=True,
+        settings=settings,
+        provider=provider,
+    )
+    assert headers == {"Authorization": "Bearer provider-token"}
+
+
+def test_resolve_auth_headers_falls_back_to_static_token():
+    settings = {"use_auth": True, "auth_type": "bearer", "auth_token": "env-token"}
+    headers = resolve_auth_headers(requires_auth=True, settings=settings)
+    assert headers == {"Authorization": "Bearer env-token"}
+
+
+def test_resolve_auth_headers_returns_empty_when_auth_required_but_unconfigured():
+    settings = {"use_auth": True, "auth_type": "bearer", "auth_token": None}
+    assert resolve_auth_headers(requires_auth=True, settings=settings) == {}
+
+
 def test_resolve_auth_headers_override_takes_priority():
     settings = {"use_auth": True, "auth_type": "bearer", "auth_token": "env-token"}
     headers = resolve_auth_headers(

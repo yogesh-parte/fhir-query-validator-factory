@@ -64,6 +64,21 @@ def test_execute_forwards_bearer_token(mock_client_class):
 
 
 @patch("src.agentic_layer.agents.query_execution.httpx.Client")
+def test_execute_forbidden_returns_authorization_error(mock_client_class):
+    mock_client = MagicMock()
+    mock_client.__enter__.return_value = mock_client
+    mock_client.get.return_value = _mock_response(403)
+    mock_client_class.return_value = mock_client
+
+    agent = QueryExecutionAgent()
+    result = agent.execute("Patient?gender=male", server_key="hapi", auth_token="limited-token")
+
+    assert result["status"] == "error"
+    assert result["error_type"] == "authorization_failed"
+    assert result["http_status"] == 403
+
+
+@patch("src.agentic_layer.agents.query_execution.httpx.Client")
 def test_execute_auth_failure(mock_client_class):
     mock_client = MagicMock()
     mock_client.__enter__.return_value = mock_client
@@ -76,3 +91,33 @@ def test_execute_auth_failure(mock_client_class):
     assert result["status"] == "error"
     assert result["error_type"] == "authentication_failed"
     assert result["http_status"] == 401
+
+
+@patch("src.agentic_layer.agents.query_execution.httpx.Client")
+def test_execute_http_status_error(mock_client_class):
+    mock_client = MagicMock()
+    mock_client.__enter__.return_value = mock_client
+    mock_client.get.return_value = _mock_response(500)
+    mock_client_class.return_value = mock_client
+
+    agent = QueryExecutionAgent()
+    result = agent.execute("Patient?gender=male", server_key="hapi")
+
+    assert result["status"] == "error"
+    assert result["error_type"] == "http_error"
+    assert result["http_status"] == 500
+
+
+@patch("src.agentic_layer.agents.query_execution.httpx.Client")
+def test_execute_request_error(mock_client_class):
+    mock_client = MagicMock()
+    mock_client.__enter__.return_value = mock_client
+    mock_client.get.side_effect = httpx.ConnectError("connection refused")
+    mock_client_class.return_value = mock_client
+
+    agent = QueryExecutionAgent()
+    result = agent.execute("Patient?gender=male", server_key="hapi")
+
+    assert result["status"] == "error"
+    assert result["error_type"] == "request_failed"
+    assert "connection refused" in result["message"]
